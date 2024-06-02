@@ -33,11 +33,13 @@ this project is a hobby and so a few bit of half working stuff, test files
 and exploration will stay in the project for me to play with.
 
 The file structure is as follows:
+```
 .
 ├── doodle -> Directory for playing around in.
 ├── README.md
 ├── other meta kind of stuff
 └── silica_c -> Here I'll build up the compiler.  Probably as a single file to start with.
+```
 
 
 ## Resources I'm using:
