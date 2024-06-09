@@ -1,6 +1,10 @@
-/* parse cmdline args */
+/* silica.c: Ah hacked together c compiler */
 
-#include "cmdargs.h"
+#include "silica.h"
+
+
+#define MAX_WORD_LENGTH 100
+#define INITIAL_ARRAY_SIZE 10
 
 void parse_arguments(
         int argc,
@@ -58,7 +62,10 @@ void parse_arguments(
     }
 }
 
-int main(int argc, char **argv) {
+
+int main(int argc, char **argv)
+{
+
     short have_input_file = 0;
     short have_output_file = 0;
     char input_file_name[20] = {0};
@@ -69,6 +76,57 @@ int main(int argc, char **argv) {
 
     printf("Input file: %s\n", input_file_name);
     printf("Ouput file: %s\n", output_file_name);
+
+    FILE *file = fopen(input_file_name, "r");
+    if (file == NULL) {
+        fprintf(stderr, "Could not open file.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Array to store pointers to the words
+    char **words = malloc(INITIAL_ARRAY_SIZE * sizeof(char *));
+    if (words == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        fclose(file);
+        exit(EXIT_FAILURE);
+    }
+
+    int capacity = INITIAL_ARRAY_SIZE;
+    int count = 0;
+    char word[MAX_WORD_LENGTH];
+
+    while (fscanf(file, "%s", word) == 1) {
+        if (count >= capacity) {
+            // Resize the array if needed
+            capacity *= 2;
+            words = realloc(words, capacity * sizeof(char *));
+            if (words == NULL) {
+                fprintf(stderr, "Memory reallocation failed.\n");
+                fclose(file);
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        // Allocate memory for the word and store it in the array
+        words[count] = malloc((strlen(word) + 1) * sizeof(char));
+        if (words[count] == NULL) {
+            fprintf(stderr, "Memory allocation for word failed.\n");
+            fclose(file);
+            exit(EXIT_FAILURE);
+        }
+        strcpy(words[count], word);
+        count++;
+    }
+
+    fclose(file);
+
+    // Print the words
+    for (int i = 0; i < count; i++) {
+        printf("%s\n", words[i]);
+        free(words[i]);  // Free each word's memory
+    }
+
+    free(words);  // Free the array of pointers
 
     return 0;
 }
