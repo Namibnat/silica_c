@@ -38,7 +38,6 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
 
 typedef enum {
@@ -95,7 +94,7 @@ bool is_end_statement(char c) {
 
 int main(int argc, char **argv)
 {
-    char source[] = "int main(){return 8880;}";
+    char source[] = "int main(){return 0;}";
 
     int state_stack[] = {START_SOURCE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     int stack_end = 18;
