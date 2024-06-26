@@ -3,6 +3,18 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define LOWER_CASE_CHAR_START 0x41
+#define LOWER_CASE_CHAR_END 0x5A
+#define UPPER_CASE_CHAR_START 0x61
+#define UPPER_CASE_CHAR_END 0x74
+#define OPEN_BRACKET 0x28
+#define CLOSE_BRACKET 0x29
+#define OPEN_CURLY_BRACKET 0x7B
+#define CLOSE_CURLY_BRACKET 0x7D
+#define LOW_DIGIT 0x30
+#define HIGH_DIGIT 0x39
+
+
 typedef struct {
     char token_type;
     char *token_text;
@@ -19,11 +31,6 @@ typedef enum {
 } item_state;
 
 
-bool is_valid_text_start(char c) {
-    return ((c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A));
-}
-
-
 bool is_valid_text_inner(char c) {
     return ((c >= 0x41 && c <= 0x5A) ||
             (c >= 0x61 && c <= 0x7A) ||
@@ -31,35 +38,10 @@ bool is_valid_text_inner(char c) {
             (c >= 0x30 && c <= 0x39));
 }
 
-
-bool is_open_bracket(char c) {
-    return (c == 0x28);
-}
-
-
-bool is_close_bracket(char c) {
-    return (c == 0x29);
-}
-
-
-bool is_open_curly_brackets(char c) {
-    return (c == 0x7B);
-}
-
-
-bool is_close_curly_bracket(char c) {
-    return (c == 0x7D);
-}
-
-
 bool is_digit(char c) {
-    return (c >= 0x30 && c <= 0x39);
+    return (c >= LOW_DIGIT && c <= HIGH_DIGIT);
 }
 
-
-bool is_end_statement(char c) {
-    return (c == 0x3B);
-}
 
 
 int main(int argc, char **argv)
@@ -77,73 +59,75 @@ int main(int argc, char **argv)
     do  {
         c = source[i];
 
-        if (is_valid_text_start(c)) {
-            while (is_valid_text_inner(c)) {
+        switch(c) {
+            case LOWER_CASE_CHAR_START ... LOWER_CASE_CHAR_END:
+            case UPPER_CASE_CHAR_START ... UPPER_CASE_CHAR_END:
+
+                while (is_valid_text_inner(c)) {
+                    putchar(c);
+                    c = source[++i];
+                }
+                printf("\n");
+                c = source[--i];
+                break;
+
+            case OPEN_BRACKET:
                 putchar(c);
-                c = source[++i];
-            }
-            printf("\n");
-            c = source[--i];
-
-        } else if (is_open_bracket(c)) {
-            putchar(c);
-            state_stack[++stack_pointer] = IN_BRACKETS;
-            printf(" : STACK STATE NOW ");
-
-            for (j=stack_start; j<=stack_pointer; j++) {
-                printf("(%d) ", state_stack[j]);
-            }
-            printf("\n\n");
-
-        } else if (is_close_bracket(c)) {
-            putchar(c);
-            stack_pointer--;
-            printf(" : STACK STATE NOW ");
-
-            for (j=stack_start; j<=stack_pointer; j++) {
-                printf("(%d) ", state_stack[j]);
-            }
-            printf("\n");
-
-        } else if (is_open_curly_brackets(c)) {
-            putchar(c);
-            state_stack[++stack_pointer] = IN_CURLY_BRACKETS;
-            state_stack[++stack_pointer] = IN_NEW_STATEMENT;
-            printf(" : STACK STATE NOW ");
-
-            for (j=stack_start; j<=stack_pointer; j++) {
-                printf("(%d) ", state_stack[j]);
-            }
-            printf("\n");
-
-        } else if (is_close_curly_bracket(c)) {
-            putchar(c);
-            stack_pointer--;
-            printf(" : STACK STATE NOW ");
-
-            for (j=stack_start; j<=stack_pointer; j++) {
-                printf("(%d) ", state_stack[j]);
-            }
-            printf("\n");
-
-        } else if (is_digit(c)) {
-            while (is_digit(c)) {
+                state_stack[++stack_pointer] = IN_BRACKETS;
+                printf(" : STACK STATE NOW ");
+                for (j=stack_start; j<=stack_pointer; j++) {
+                    printf("(%d) ", state_stack[j]);
+                }
+                printf("\n");
+                break;
+            case CLOSE_BRACKET:
                 putchar(c);
-                c = source[++i];
-            }
-            c = source[--i];
-            printf("\n");
+                stack_pointer--;
+                printf(" : STACK STATE NOW ");
+                for (j=stack_start; j<=stack_pointer; j++) {
+                    printf("(%d) ", state_stack[j]);
+                }
+                printf("\n");
+                break;
+            case OPEN_CURLY_BRACKET:
+                putchar(c);
+                state_stack[++stack_pointer] = IN_CURLY_BRACKETS;
+                state_stack[++stack_pointer] = IN_NEW_STATEMENT;
+                printf(" : STACK STATE NOW ");
 
-        } else if (is_end_statement(c)) {
-            putchar(c);
-            stack_pointer--;
-            printf(" : STACK STATE NOW ");
+                for (j=stack_start; j<=stack_pointer; j++) {
+                    printf("(%d) ", state_stack[j]);
+                }
+                printf("\n");
+                break;
+            case CLOSE_CURLY_BRACKET:
+                putchar(c);
+                stack_pointer--;
+                printf(" : STACK STATE NOW ");
 
-            for (j=stack_start; j<=stack_pointer; j++) {
-                printf("(%d) ", state_stack[j]);
-            }
+                for (j=stack_start; j<=stack_pointer; j++) {
+                    printf("(%d) ", state_stack[j]);
+                }
+                printf("\n");
+                break;
+            case LOW_DIGIT ... HIGH_DIGIT:
+                while (is_digit(c)) {
+                    putchar(c);
+                    c = source[++i];
+                }
+                c = source[--i];
+                printf("\n");
+            case EOF:
+                putchar(c);
+                stack_pointer--;
+                printf(" : STACK STATE NOW ");
 
-            printf("\n");
+                for (j=stack_start; j<=stack_pointer; j++) {
+                    printf("(%d) ", state_stack[j]);
+                }
+
+                printf("\n");
+
         }
 
         i++;
