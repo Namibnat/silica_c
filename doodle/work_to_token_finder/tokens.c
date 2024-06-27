@@ -1,7 +1,12 @@
 /* Identify  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+
+// TODO:Start to create types for each of the c keywords
+// but maybe do this back in the original file.
 
 #define LOWER_CASE_CHAR_START 0x41
 #define LOWER_CASE_CHAR_END 0x5A
@@ -16,7 +21,7 @@
 
 
 typedef struct {
-    char token_type;
+    int token_type;
     char *token_text;
 } Token;
 
@@ -42,11 +47,26 @@ bool is_digit(char c) {
     return (c >= LOW_DIGIT && c <= HIGH_DIGIT);
 }
 
+void assign_token(Token *tokens, int token_counter, char *item, unsigned int item_size) {
+    tokens = (Token *)realloc(tokens, sizeof(Token) * token_counter);
+    // Next -> malloc to create heap memory for the item.
+    printf("%s is %d\n", item, item_size);
+}
+
+void free_tokens(Token *tokens, int token_counter){
+    // TODO: cycle through the arrays and dealocate the memory for each item.
+    free(tokens);
+}
+
 
 
 int main(int argc, char **argv)
 {
     char source[] = "int main(){return 0;}";
+    Token *tokens;
+    int token_counter = 0;
+    char item_container[50];
+    int item_counter;
 
     int state_stack[] = {START_SOURCE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     int stack_end = 18;
@@ -58,19 +78,23 @@ int main(int argc, char **argv)
 
     do  {
         c = source[i];
+        item_counter = 0;
 
         switch(c) {
             case LOWER_CASE_CHAR_START ... LOWER_CASE_CHAR_END:
             case UPPER_CASE_CHAR_START ... UPPER_CASE_CHAR_END:
 
                 while (is_valid_text_inner(c)) {
-                    putchar(c);
+                    item_container[item_counter++] = c;
                     c = source[++i];
                 }
-                printf("\n");
+                item_container[item_counter] = '\0';
+                assign_token(tokens, token_counter, item_container, item_counter);
                 c = source[--i];
+                token_counter++;
                 break;
 
+                // Do memory assignment from here down.
             case OPEN_BRACKET:
                 putchar(c);
                 state_stack[++stack_pointer] = IN_BRACKETS;
@@ -132,6 +156,10 @@ int main(int argc, char **argv)
 
         i++;
     } while (c != '\0');
+
+
+    token_counter--;
+    free_tokens(tokens, token_counter);
 
     return 0;
 }

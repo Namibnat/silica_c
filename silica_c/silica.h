@@ -5,8 +5,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Function prototype
-void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name, short *have_input_file, short *have_output_file);
+
+void parse_arguments(
+        int argc,
+        char **argv,
+        char *input_file_name,
+        char *output_file_name,
+        short *have_input_file,
+        short *have_output_file);
 
 #endif
 
