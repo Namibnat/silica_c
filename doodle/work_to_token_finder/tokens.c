@@ -47,10 +47,20 @@ bool is_digit(char c) {
     return (c >= LOW_DIGIT && c <= HIGH_DIGIT);
 }
 
-void assign_token(Token *tokens, int token_counter, char *item, unsigned int item_size) {
-    tokens = (Token *)realloc(tokens, sizeof(Token) * token_counter);
+bool assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size) {
+    if (token_counter > 0) {
+        Token *tokens_update;
+        tokens_update = realloc(*tokens, (token_counter + 1) * sizeof(Token));
+        if (tokens_update == NULL) {
+            perror("Failed to allocate memory for tokens");
+            return false;
+        }
+        *tokens = tokens_update;
+    }
+
     // Next -> malloc to create heap memory for the item.
     printf("%s is %d\n", item, item_size);
+    return true;
 }
 
 void free_tokens(Token *tokens, int token_counter){
@@ -68,10 +78,19 @@ int main(int argc, char **argv)
     char item_container[50];
     int item_counter;
 
+    tokens = (Token *)malloc(sizeof(Token));
+    if (tokens == NULL) {
+        perror("Failed to allocate memory for tokens");
+        return 1;
+    }
+    bool creation_success;
+
+
     int state_stack[] = {START_SOURCE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
     int stack_end = 18;
     int stack_start = 0;
     int stack_pointer = stack_start;
+
     int i = 0;
     int j;
     char c;
@@ -86,12 +105,16 @@ int main(int argc, char **argv)
 
                 while (is_valid_text_inner(c)) {
                     item_container[item_counter++] = c;
+                    putchar(c);
                     c = source[++i];
                 }
                 item_container[item_counter] = '\0';
-                assign_token(tokens, token_counter, item_container, item_counter);
-                c = source[--i];
+                creation_success = assign_token(&tokens, token_counter, item_container, item_counter);
+                if (creation_success == false) {
+                    return 1;
+                }
                 token_counter++;
+                c = source[--i];
                 break;
 
                 // Do memory assignment from here down.
@@ -156,7 +179,6 @@ int main(int argc, char **argv)
 
         i++;
     } while (c != '\0');
-
 
     token_counter--;
     free_tokens(tokens, token_counter);
