@@ -6,6 +6,41 @@
 #define MAX_WORD_LENGTH 100
 #define INITIAL_ARRAY_SIZE 10
 
+bool is_valid_text_inner(char c) {
+    return ((c >= 0x41 && c <= 0x5A) ||
+            (c >= 0x61 && c <= 0x7A) ||
+            (c == 0x2D) ||
+            (c >= 0x30 && c <= 0x39));
+}
+
+bool is_digit(char c) {
+    return (c >= LOW_DIGIT && c <= HIGH_DIGIT);
+}
+
+bool assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size) {
+    if (token_counter > 0) {
+        Token *tokens_update;
+        tokens_update = realloc(*tokens, (token_counter + 1) * sizeof(Token));
+        if (tokens_update == NULL) {
+            perror("Failed to allocate memory for tokens");
+            return false;
+        }
+        *tokens = tokens_update;
+    }
+    (*tokens)[token_counter].token_type = 1;  // TODO: This will get updated to types
+
+    // TODO: malloc space for token string.
+
+    // Next -> malloc to create heap memory for the item.
+    printf("%s is %d\n", item, item_size);
+    return true;
+}
+
+void free_tokens(Token *tokens, int token_counter){
+    // TODO: cycle through the arrays and dealocate the memory for each item.
+    free(tokens);
+}
+
 void parse_arguments(
         int argc,
         char **argv,

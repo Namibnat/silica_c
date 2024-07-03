@@ -57,6 +57,9 @@ bool assign_token(Token **tokens, int token_counter, char *item, unsigned int it
         }
         *tokens = tokens_update;
     }
+    (*tokens)[token_counter].token_type = 1;  // TODO: This will get updated to types
+
+    // TODO: malloc space for token string.
 
     // Next -> malloc to create heap memory for the item.
     printf("%s is %d\n", item, item_size);
@@ -105,7 +108,6 @@ int main(int argc, char **argv)
 
                 while (is_valid_text_inner(c)) {
                     item_container[item_counter++] = c;
-                    putchar(c);
                     c = source[++i];
                 }
                 item_container[item_counter] = '\0';
