@@ -16,6 +16,7 @@
 #define CLOSE_CURLY_BRACKET 0x7D
 #define LOW_DIGIT 0x30
 #define HIGH_DIGIT 0x39
+#define MAX_FILENAME_LEN 0x2
 
 typedef struct {
     int token_type;

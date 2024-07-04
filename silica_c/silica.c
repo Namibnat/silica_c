@@ -47,29 +47,35 @@ void parse_arguments(
         char *input_file_name,
         char *output_file_name,
         short *have_input_file,
-        short *have_output_file)
-{
+        short *have_output_file) {
     int i;
     int arglen;
+    int outlen;
+    int outfile_position;
 
     for (i = 1; i < argc; i++){
         arglen = strlen(argv[i]);
 
         if (arglen == 2 && argv[i][0] == '-' && argv[i][1] == 'o'){
-            if (i + 1 == argc){
+            outfile_position = i + 1;
+            if (outfile_position == argc){
                 fprintf(stderr, "No output file hane has been provided after the -o flag\n");
                 continue;
             }
-            strncpy(output_file_name, argv[i + 1], 19);
-            printf("%s\n", argv[i+1]);
-            output_file_name[19] = '\0';
+            outlen = strlen(argv[outfile_position]);
+            if (outlen > MAX_WORD_LENGTH){
+                fprintf(stderr, "Output filename exceeds the maximum length");
+                exit(EXIT_FAILURE);
+            }
+
+            strcpy(output_file_name, argv[outfile_position]);
+            printf("%s\n", argv[outfile_position]);
             (*have_output_file)++;
             i++;
         }
 
         if (arglen > 2 && argv[i][arglen - 1] == 'c' && argv[i][arglen - 2] == '.'){
-            strncpy(input_file_name, argv[i], 19);
-            input_file_name[19] = '\0';
+            strcpy(output_file_name, argv[i]);
             (*have_input_file)++;
         }
 
@@ -94,8 +100,8 @@ int main(int argc, char **argv)
 
     short have_input_file = 0;
     short have_output_file = 0;
-    char input_file_name[20] = {0};
-    char output_file_name[20] = {0};
+    char input_file_name[MAX_FILENAME_LEN] = {0};
+    char output_file_name[MAX_FILENAME_LEN] = {0};
 
     parse_arguments(argc, argv, input_file_name, output_file_name, &have_input_file, &have_output_file);
 
