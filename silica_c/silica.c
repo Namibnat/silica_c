@@ -57,6 +57,7 @@ void parse_arguments(
         arglen = strlen(argv[i]);
 
         if (arglen == 2 && argv[i][0] == '-' && argv[i][1] == 'o'){
+            // Getting an error here, working on fixing it.
             outfile_position = i + 1;
             if (outfile_position == argc){
                 fprintf(stderr, "No output file hane has been provided after the -o flag\n");
@@ -69,7 +70,6 @@ void parse_arguments(
             }
 
             strcpy(output_file_name, argv[outfile_position]);
-            printf("%s\n", argv[outfile_position]);
             (*have_output_file)++;
             i++;
         }
@@ -127,7 +127,6 @@ int main(int argc, char **argv)
 
     while (fscanf(file, "%s", word) == 1) {
         if (count >= capacity) {
-            // Resize the array if needed
             capacity *= 2;
             words = realloc(words, capacity * sizeof(char *));
             if (words == NULL) {
