@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -g
 
-TARGET = silica_c
-SRCS = silica_c.c
+TARGET = silica
+SRCS = silica.c
 
 all: $(TARGET)
 

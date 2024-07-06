@@ -3,9 +3,6 @@
 #include "silica.h"
 
 
-#define MAX_WORD_LENGTH 100
-#define INITIAL_ARRAY_SIZE 10
-
 bool is_valid_text_inner(char c) {
     return ((c >= 0x41 && c <= 0x5A) ||
             (c >= 0x61 && c <= 0x7A) ||
@@ -48,6 +45,7 @@ void parse_arguments(
         char *output_file_name,
         short *have_input_file,
         short *have_output_file) {
+
     int i;
     int arglen;
     int outlen;
@@ -57,25 +55,30 @@ void parse_arguments(
         arglen = strlen(argv[i]);
 
         if (arglen == 2 && argv[i][0] == '-' && argv[i][1] == 'o'){
-            // Getting an error here, working on fixing it.
+
             outfile_position = i + 1;
-            if (outfile_position == argc){
+            if (outfile_position >= argc){
                 fprintf(stderr, "No output file hane has been provided after the -o flag\n");
-                continue;
+                exit(EXIT_FAILURE);
             }
+
             outlen = strlen(argv[outfile_position]);
             if (outlen > MAX_WORD_LENGTH){
                 fprintf(stderr, "Output filename exceeds the maximum length");
                 exit(EXIT_FAILURE);
             }
 
-            strcpy(output_file_name, argv[outfile_position]);
+            strncpy(output_file_name, argv[outfile_position], outlen);
+            output_file_name[outlen] = '\0';
             (*have_output_file)++;
             i++;
+            continue;
         }
 
         if (arglen > 2 && argv[i][arglen - 1] == 'c' && argv[i][arglen - 2] == '.'){
-            strcpy(output_file_name, argv[i]);
+
+            strncpy(input_file_name, argv[i], arglen);
+            input_file_name[arglen] = '\0';
             (*have_input_file)++;
         }
 
@@ -100,8 +103,8 @@ int main(int argc, char **argv)
 
     short have_input_file = 0;
     short have_output_file = 0;
-    char input_file_name[MAX_FILENAME_LEN] = {0};
-    char output_file_name[MAX_FILENAME_LEN] = {0};
+    char input_file_name[MAX_FILENAME_LEN];
+    char output_file_name[MAX_FILENAME_LEN];
 
     parse_arguments(argc, argv, input_file_name, output_file_name, &have_input_file, &have_output_file);
 
