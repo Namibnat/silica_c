@@ -17,8 +17,9 @@
 #define LOW_DIGIT 0x30
 #define HIGH_DIGIT 0x39
 
+#define INPUT_CHAR_LENGTH 100
 #define MAX_FILENAME_LEN 100
-#define MAX_WORD_LENGTH 100
+#define MAX_WORD_LENGTH 100  // TODO: PROBABLY TAKE IT OUT.
 #define INITIAL_ARRAY_SIZE 10
 
 typedef struct {
@@ -36,13 +37,8 @@ typedef enum {
     IN_DIGIT,
 } item_state;
 
-void parse_arguments(
-        int argc,
-        char **argv,
-        char *input_file_name,
-        char *output_file_name,
-        short *have_input_file,
-        short *have_output_file);
+void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name);
+void read_file(char *input_file_name, char *input_characters);
 
 #endif
 

@@ -38,18 +38,15 @@ void free_tokens(Token *tokens, int token_counter){
     free(tokens);
 }
 
-void parse_arguments(
-        int argc,
-        char **argv,
-        char *input_file_name,
-        char *output_file_name,
-        short *have_input_file,
-        short *have_output_file) {
+void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name) {
 
     int i;
     int arglen;
     int outlen;
     int outfile_position;
+
+    short have_input_file = 0;
+    short have_output_file = 0;
 
     for (i = 1; i < argc; i++){
         arglen = strlen(argv[i]);
@@ -70,7 +67,7 @@ void parse_arguments(
 
             strncpy(output_file_name, argv[outfile_position], outlen);
             output_file_name[outlen] = '\0';
-            (*have_output_file)++;
+            have_output_file++;
             i++;
             continue;
         }
@@ -79,37 +76,34 @@ void parse_arguments(
 
             strncpy(input_file_name, argv[i], arglen);
             input_file_name[arglen] = '\0';
-            (*have_input_file)++;
+            have_input_file++;
         }
 
-        if (*have_input_file > 0 && *have_output_file > 0){
+        if (have_input_file > 0 && have_output_file > 0){
             break;
         }
     }
 
-    if (*have_output_file == 0) {
+    if (have_output_file == 0) {
         strcpy(output_file_name, "a.out");
     }
 
-    if (*have_input_file == 0) {
+    if (have_input_file == 0) {
         fprintf(stderr, "No input file has been supplied\n");
         exit(EXIT_FAILURE);
     }
 }
 
-
-int main(int argc, char **argv)
-{
-
-    short have_input_file = 0;
-    short have_output_file = 0;
-    char input_file_name[MAX_FILENAME_LEN];
-    char output_file_name[MAX_FILENAME_LEN];
-
-    parse_arguments(argc, argv, input_file_name, output_file_name, &have_input_file, &have_output_file);
-
-    printf("Input file: %s\n", input_file_name);
-    printf("Ouput file: %s\n", output_file_name);
+void read_file(char *input_file_name, char *input_characters) {
+    // TODO: START HERE.  STILL NOT GETTING THIS RIGHT
+    char c;
+    int capacity = INITIAL_ARRAY_SIZE;
+    int count = 0;
+    char *padded_characters = (char *)malloc(INPUT_CHAR_LENGTH * sizeof(char));
+    if (input_characters == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        exit(EXIT_FAILURE);
+    }
 
     FILE *file = fopen(input_file_name, "r");
     if (file == NULL) {
@@ -117,47 +111,45 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    char **words = malloc(INITIAL_ARRAY_SIZE * sizeof(char *));
-    if (words == NULL) {
-        fprintf(stderr, "Memory allocation failed.\n");
-        fclose(file);
-        exit(EXIT_FAILURE);
-    }
-
-    int capacity = INITIAL_ARRAY_SIZE;
-    int count = 0;
-    char word[MAX_WORD_LENGTH];
-
-    while (fscanf(file, "%s", word) == 1) {
-        if (count >= capacity) {
+    while ((c=fgetc(file)) != EOF) {
+        if ((count + 2) >= capacity) {
             capacity *= 2;
-            words = realloc(words, capacity * sizeof(char *));
-            if (words == NULL) {
+            padded_characters = realloc(padded_characters, capacity * sizeof(char));
+            if (padded_characters == NULL) {
                 fprintf(stderr, "Memory reallocation failed.\n");
                 fclose(file);
                 exit(EXIT_FAILURE);
             }
+            input_characters = padded_characters;
         }
-
-        words[count] = malloc((strlen(word) + 1) * sizeof(char));
-        if (words[count] == NULL) {
-            fprintf(stderr, "Memory allocation for word failed.\n");
-            fclose(file);
-            exit(EXIT_FAILURE);
-        }
-        strcpy(words[count], word);
+        input_characters[count] = c;
         count++;
     }
 
+    count++;
+    input_characters[count] = '\0';
     fclose(file);
 
-    for (int i = 0; i < count; i++) {
-        printf("%s\n", words[i]);
-        free(words[i]);
+    printf("Input Chars: %s\n", input_characters);
+}
+
+
+int main(int argc, char **argv) {
+    char input_file_name[MAX_FILENAME_LEN];
+    char output_file_name[MAX_FILENAME_LEN];
+    char *input_characters;
+
+    parse_arguments(argc, argv, input_file_name, output_file_name);
+
+    input_characters = (char *)malloc(INITIAL_ARRAY_SIZE * sizeof(char));
+    if (input_characters == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        exit(EXIT_FAILURE);
     }
+    read_file(input_file_name, input_characters);
+    printf("Input Chars: %s\n", input_characters);
 
-    free(words);
-
+    free(input_characters);
     return 0;
 }
 
