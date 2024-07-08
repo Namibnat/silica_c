@@ -94,16 +94,18 @@ void parse_arguments(int argc, char **argv, char *input_file_name, char *output_
     }
 }
 
-void read_file(char *input_file_name, char *input_characters) {
-    // TODO: START HERE.  STILL NOT GETTING THIS RIGHT
+void read_file(char *input_file_name, char **input_characters) {
     char c;
     int capacity = INITIAL_ARRAY_SIZE;
     int count = 0;
-    char *padded_characters = (char *)malloc(INPUT_CHAR_LENGTH * sizeof(char));
-    if (input_characters == NULL) {
+    char *padded_characters = NULL;
+
+    *input_characters = (char *)malloc(capacity * sizeof(char));
+    if (*input_characters == NULL) {
         fprintf(stderr, "Memory allocation failed.\n");
         exit(EXIT_FAILURE);
     }
+
 
     FILE *file = fopen(input_file_name, "r");
     if (file == NULL) {
@@ -114,42 +116,41 @@ void read_file(char *input_file_name, char *input_characters) {
     while ((c=fgetc(file)) != EOF) {
         if ((count + 2) >= capacity) {
             capacity *= 2;
-            padded_characters = realloc(padded_characters, capacity * sizeof(char));
+            padded_characters = (char *)realloc(*input_characters, capacity * sizeof(char));
             if (padded_characters == NULL) {
                 fprintf(stderr, "Memory reallocation failed.\n");
                 fclose(file);
                 exit(EXIT_FAILURE);
             }
-            input_characters = padded_characters;
+            *input_characters = padded_characters;
         }
-        input_characters[count] = c;
+        (*input_characters)[count] = c;
         count++;
     }
 
-    count++;
-    input_characters[count] = '\0';
+    (*input_characters)[count] = '\0';
     fclose(file);
+}
 
-    printf("Input Chars: %s\n", input_characters);
+void token_parser(Token **tokens, char **input_characters) {
+    // TODO: continue from here, working on tokens.
+    printf("Get to token thingi\n");
 }
 
 
 int main(int argc, char **argv) {
     char input_file_name[MAX_FILENAME_LEN];
     char output_file_name[MAX_FILENAME_LEN];
-    char *input_characters;
+    char *input_characters = NULL;
+    Token *tokens = NULL;
 
     parse_arguments(argc, argv, input_file_name, output_file_name);
+    read_file(input_file_name, &input_characters);
+    token_parser(&tokens, &input_characters);
 
-    input_characters = (char *)malloc(INITIAL_ARRAY_SIZE * sizeof(char));
-    if (input_characters == NULL) {
-        fprintf(stderr, "Memory allocation failed.\n");
-        exit(EXIT_FAILURE);
-    }
-    read_file(input_file_name, input_characters);
-    printf("Input Chars: %s\n", input_characters);
 
     free(input_characters);
+
     return 0;
 }
 

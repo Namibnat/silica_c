@@ -38,7 +38,8 @@ typedef enum {
 } item_state;
 
 void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name);
-void read_file(char *input_file_name, char *input_characters);
+void read_file(char *input_file_name, char **input_characters);
+void token_parser(Token **tokens, char **input_characters);
 
 #endif
 
