@@ -133,8 +133,46 @@ void read_file(char *input_file_name, char **input_characters) {
 }
 
 void token_parser(Token **tokens, char **input_characters) {
-    // TODO: continue from here, working on tokens.
-    printf("Get to token thingi\n");
+    int i = 0;
+    char c;
+    char item_container[50];  // TODO: GET RID OF MAGIC NUMBER, AND ASSIGN ON THE HEAP?
+    int item_counter;
+
+    do  {
+        c = (*input_characters)[i];
+        item_counter = 0;
+        switch(c) {
+            case LOWER_CASE_CHAR_START ... LOWER_CASE_CHAR_END:
+            case UPPER_CASE_CHAR_START ... UPPER_CASE_CHAR_END:
+                while (is_valid_text_inner(c)) {
+                    item_container[item_counter++] = c;
+                    c = (*input_characters)[++i];
+                }
+                printf("Found chars\n");
+                break;
+            case OPEN_BRACKET:
+                printf("Found open brackets\n");
+                break;
+            case CLOSE_BRACKET:
+                printf("Found close brackets\n");
+                break;
+            case OPEN_CURLY_BRACKET:
+                printf("Found open curly brackets\n");
+                break;
+            case CLOSE_CURLY_BRACKET:
+                printf("Found close curly brackets\n");
+                break;
+            case LOW_DIGIT ... HIGH_DIGIT:
+                printf("Found digits\n");
+                break;
+            case '\0':
+                printf("Found the end\n");
+                break;
+        }
+        i++;
+    } while (c != '\0');
+
+    printf("\n\nbump: %d\n", item_counter);
 }
 
 

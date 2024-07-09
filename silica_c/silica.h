@@ -37,6 +37,7 @@ typedef enum {
     IN_DIGIT,
 } item_state;
 
+bool is_valid_text_inner(char c);
 void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name);
 void read_file(char *input_file_name, char **input_characters);
 void token_parser(Token **tokens, char **input_characters);
