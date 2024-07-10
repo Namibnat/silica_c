@@ -14,13 +14,13 @@ bool is_digit(char c) {
     return (c >= LOW_DIGIT && c <= HIGH_DIGIT);
 }
 
-bool assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size) {
+void assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size) {
     if (token_counter > 0) {
         Token *tokens_update;
         tokens_update = realloc(*tokens, (token_counter + 1) * sizeof(Token));
         if (tokens_update == NULL) {
             perror("Failed to allocate memory for tokens");
-            return false;
+            exit(EXIT_FAILURE);
         }
         *tokens = tokens_update;
     }
@@ -30,7 +30,6 @@ bool assign_token(Token **tokens, int token_counter, char *item, unsigned int it
 
     // Next -> malloc to create heap memory for the item.
     printf("%s is %d\n", item, item_size);
-    return true;
 }
 
 void free_tokens(Token *tokens, int token_counter){
@@ -132,11 +131,18 @@ void read_file(char *input_file_name, char **input_characters) {
     fclose(file);
 }
 
-void token_parser(Token **tokens, char **input_characters) {
+int token_parser(Token **tokens, char **input_characters) {
     int i = 0;
     char c;
     char item_container[50];  // TODO: GET RID OF MAGIC NUMBER, AND ASSIGN ON THE HEAP?
     int item_counter;
+    int token_counter = 0;
+
+    *tokens = (Token *)malloc(sizeof(Token));
+    if (tokens == NULL) {
+        perror("Failed to allocate memory for tokens");
+        exit(EXIT_FAILURE);
+    }
 
     do  {
         c = (*input_characters)[i];
@@ -148,7 +154,10 @@ void token_parser(Token **tokens, char **input_characters) {
                     item_container[item_counter++] = c;
                     c = (*input_characters)[++i];
                 }
-                printf("Found chars\n");
+                assign_token(tokens, token_counter, item_container, item_counter);
+                token_counter++;
+                c = (*input_characters)[--i];
+                // i--;
                 break;
             case OPEN_BRACKET:
                 printf("Found open brackets\n");
@@ -172,11 +181,12 @@ void token_parser(Token **tokens, char **input_characters) {
         i++;
     } while (c != '\0');
 
-    printf("\n\nbump: %d\n", item_counter);
+    return token_counter;
 }
 
 
 int main(int argc, char **argv) {
+    int token_counter;
     char input_file_name[MAX_FILENAME_LEN];
     char output_file_name[MAX_FILENAME_LEN];
     char *input_characters = NULL;
@@ -184,10 +194,11 @@ int main(int argc, char **argv) {
 
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
-    token_parser(&tokens, &input_characters);
+    token_counter = token_parser(&tokens, &input_characters);
 
 
     free(input_characters);
+    free_tokens(tokens, token_counter);
 
     return 0;
 }
