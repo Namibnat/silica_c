@@ -137,6 +137,14 @@ int token_parser(Token **tokens, char **input_characters) {
     char item_container[50];  // TODO: GET RID OF MAGIC NUMBER, AND ASSIGN ON THE HEAP?
     int item_counter;
     int token_counter = 0;
+    int stack_max = 50;
+    int stack_pointer = 0;
+    char *stack_state = (char *)malloc(stack_max * sizeof(char));
+
+    if (stack_state == NULL) {
+        perror("Failed to allocate memory for the stack state");
+        exit(EXIT_FAILURE);
+    }
 
     *tokens = (Token *)malloc(sizeof(Token));
     if (tokens == NULL) {
@@ -150,16 +158,18 @@ int token_parser(Token **tokens, char **input_characters) {
         switch(c) {
             case LOWER_CASE_CHAR_START ... LOWER_CASE_CHAR_END:
             case UPPER_CASE_CHAR_START ... UPPER_CASE_CHAR_END:
-                while (is_valid_text_inner(c)) {
+                do {
                     item_container[item_counter++] = c;
                     c = (*input_characters)[++i];
-                }
+                } while (is_valid_text_inner(c));
+
                 assign_token(tokens, token_counter, item_container, item_counter);
                 token_counter++;
-                c = (*input_characters)[--i];
-                // i--;
                 break;
             case OPEN_BRACKET:
+                assign_token(tokens, token_counter, "{", item_counter);
+                token_counter++;
+                stack_state[stack_pointer++] = IN_BRACKETS;
                 printf("Found open brackets\n");
                 break;
             case CLOSE_BRACKET:
@@ -180,6 +190,8 @@ int token_parser(Token **tokens, char **input_characters) {
         }
         i++;
     } while (c != '\0');
+
+    free(stack_state);
 
     return token_counter;
 }
