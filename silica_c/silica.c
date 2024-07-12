@@ -29,7 +29,7 @@ void assign_token(Token **tokens, int token_counter, char *item, unsigned int it
     // TODO: malloc space for token string.
 
     // Next -> malloc to create heap memory for the item.
-    printf("%s is %d\n", item, item_size);
+    printf("---> %s is %d\n", item, item_size);
 }
 
 void free_tokens(Token *tokens, int token_counter){
@@ -137,14 +137,6 @@ int token_parser(Token **tokens, char **input_characters) {
     char item_container[50];  // TODO: GET RID OF MAGIC NUMBER, AND ASSIGN ON THE HEAP?
     int item_counter;
     int token_counter = 0;
-    int stack_max = 50;
-    int stack_pointer = 0;
-    char *stack_state = (char *)malloc(stack_max * sizeof(char));
-
-    if (stack_state == NULL) {
-        perror("Failed to allocate memory for the stack state");
-        exit(EXIT_FAILURE);
-    }
 
     *tokens = (Token *)malloc(sizeof(Token));
     if (tokens == NULL) {
@@ -162,42 +154,63 @@ int token_parser(Token **tokens, char **input_characters) {
                     item_container[item_counter++] = c;
                     c = (*input_characters)[++i];
                 } while (is_valid_text_inner(c));
-
+                item_container[item_counter++] = '\0';
                 assign_token(tokens, token_counter, item_container, item_counter);
                 token_counter++;
                 break;
+
             case OPEN_BRACKET:
+                assign_token(tokens, token_counter, "(", item_counter);
+                token_counter++;
+                break;
+
+            case CLOSE_BRACKET:
+                assign_token(tokens, token_counter, ")", item_counter);
+                token_counter++;
+                break;
+
+            case OPEN_CURLY_BRACKET:
                 assign_token(tokens, token_counter, "{", item_counter);
                 token_counter++;
-                stack_state[stack_pointer++] = IN_BRACKETS;
-                printf("Found open brackets\n");
                 break;
-            case CLOSE_BRACKET:
-                printf("Found close brackets\n");
-                break;
-            case OPEN_CURLY_BRACKET:
-                printf("Found open curly brackets\n");
-                break;
+
             case CLOSE_CURLY_BRACKET:
-                printf("Found close curly brackets\n");
+                assign_token(tokens, token_counter, "}", item_counter);
                 break;
+
             case LOW_DIGIT ... HIGH_DIGIT:
-                printf("Found digits\n");
+                do {
+                    item_container[item_counter++] = c;
+                    c = (*input_characters)[++i];
+                } while (is_digit(c));
+                item_container[item_counter++] = '\0';
+                assign_token(tokens, token_counter, item_container, item_counter);
+                token_counter++;
                 break;
+
             case '\0':
-                printf("Found the end\n");
                 break;
         }
         i++;
     } while (c != '\0');
 
-    free(stack_state);
+    for (i=0; i<token_counter; i++) {
+
+        printf("Token: %d: \n", i);
+    }
 
     return token_counter;
 }
 
 
 int main(int argc, char **argv) {
+    /*
+     * TODO:
+     *  - Make tokens into a linked list.
+     *  - Assign the items in the tokens, malloc for space
+     *  - Then start on the next section
+     */
+
     int token_counter;
     char input_file_name[MAX_FILENAME_LEN];
     char output_file_name[MAX_FILENAME_LEN];
