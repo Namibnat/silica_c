@@ -1,3 +1,30 @@
+/*
+ * 	•	Keywords: Reserved words in C, such as int, return, if, else, while, for, void, char, float, double, static, struct, etc.
+	•	Identifiers: Names given to variables, functions, arrays, etc., such as main, x, myFunction, data, etc.
+	•	Operators:
+	•	Arithmetic Operators: +, -, *, /, %
+	•	Assignment Operators: =, +=, -=, *=, /=, %=
+	•	Comparison Operators: ==, !=, <, >, <=, >=
+	•	Logical Operators: &&, ||, !
+	•	Bitwise Operators: &, |, ^, ~, <<, >>
+	•	Increment/Decrement Operators: ++, --
+	•	Pointer Operators: *, &
+	•	Punctuation:
+	•	Parentheses: (, )
+	•	Braces: {, }
+	•	Brackets: [, ]
+	•	Comma: ,
+	•	Semicolon: ;
+	•	Colon: :
+	•	Period: .
+	•	Ellipsis: ... (used in variadic functions)
+	•	Literals:
+	•	Integer Literals: 0, 1, 2, 110, etc.
+	•	Floating-point Literals: 0.0, 3.14, 2.718, etc.
+	•	Character Literals: 'a', 'b', '\n', etc.
+	•	String Literals: "hello", "world", "sample", etc.
+	•	Boolean Literals: true, false (from <stdbool.h>)
+*/
 #ifndef CHMARGS_FIND_C_H
 #define CHMARGS_FIND_C_H
 
@@ -16,6 +43,7 @@
 #define CLOSE_CURLY_BRACKET 0x7D
 #define LOW_DIGIT 0x30
 #define HIGH_DIGIT 0x39
+#define SEMICOLON 0x3B
 
 #define INPUT_CHAR_LENGTH 100
 #define MAX_FILENAME_LEN 100
@@ -37,8 +65,19 @@ typedef enum {
     IN_DIGIT,
 } item_state;
 
+typedef enum {
+    KEYWORD,
+    ITENTIFIER,
+    LEFT_PARENTHESIS,
+    RIGHT_PARENTHESIS,
+    LEFT_BRACE,
+    RIGHT_BRACE,
+    INTEGER_LITERAL,
+    SEMICOLON_ITEM,
+} c_types;
+
 bool is_valid_text_inner(char c);
-void assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size);
+void assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size, int item_type);
 void free_tokens(Token *tokens, int token_counter);
 void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name);
 void read_file(char *input_file_name, char **input_characters);

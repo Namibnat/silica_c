@@ -14,7 +14,7 @@ bool is_digit(char c) {
     return (c >= LOW_DIGIT && c <= HIGH_DIGIT);
 }
 
-void assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size) {
+void assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size, int item_type) {
     if (token_counter > 0) {
         Token *tokens_update;
         tokens_update = realloc(*tokens, (token_counter + 1) * sizeof(Token));
@@ -24,9 +24,11 @@ void assign_token(Token **tokens, int token_counter, char *item, unsigned int it
         }
         *tokens = tokens_update;
     }
-    (*tokens)[token_counter].token_type = 1;  // TODO: This will get updated to types
+    (*tokens)[token_counter].token_type = item_type;
+    char *token_text = (char *)malloc(item_size * sizeof(char));
+    (*tokens)[token_counter].token_text = token_text;
+    strcpy((*tokens)[token_counter].token_text, item);
 
-    // TODO: malloc space for token string.
 
     // Next -> malloc to create heap memory for the item.
     printf("---> %s is %d\n", item, item_size);
@@ -34,6 +36,7 @@ void assign_token(Token **tokens, int token_counter, char *item, unsigned int it
 
 void free_tokens(Token *tokens, int token_counter){
     // TODO: cycle through the arrays and dealocate the memory for each item.
+    // free(token_text);
     free(tokens);
 }
 
@@ -155,27 +158,32 @@ int token_parser(Token **tokens, char **input_characters) {
                     c = (*input_characters)[++i];
                 } while (is_valid_text_inner(c));
                 item_container[item_counter++] = '\0';
-                assign_token(tokens, token_counter, item_container, item_counter);
+
+                // TODO: do logic to sort keywords form itentifiers.
+                assign_token(tokens, token_counter, item_container, item_counter, KEYWORD);
                 token_counter++;
+                i--;
                 break;
 
             case OPEN_BRACKET:
-                assign_token(tokens, token_counter, "(", item_counter);
+                assign_token(tokens, token_counter, "(", item_counter, LEFT_PARENTHESIS);
+                printf("open (\n");
                 token_counter++;
                 break;
 
             case CLOSE_BRACKET:
-                assign_token(tokens, token_counter, ")", item_counter);
+                assign_token(tokens, token_counter, ")", item_counter, RIGHT_PARENTHESIS);
                 token_counter++;
                 break;
 
             case OPEN_CURLY_BRACKET:
-                assign_token(tokens, token_counter, "{", item_counter);
+                assign_token(tokens, token_counter, "{", item_counter, LEFT_BRACE);
                 token_counter++;
                 break;
 
             case CLOSE_CURLY_BRACKET:
-                assign_token(tokens, token_counter, "}", item_counter);
+                assign_token(tokens, token_counter, "}", item_counter, RIGHT_BRACE);
+                token_counter++;
                 break;
 
             case LOW_DIGIT ... HIGH_DIGIT:
@@ -184,7 +192,12 @@ int token_parser(Token **tokens, char **input_characters) {
                     c = (*input_characters)[++i];
                 } while (is_digit(c));
                 item_container[item_counter++] = '\0';
-                assign_token(tokens, token_counter, item_container, item_counter);
+                assign_token(tokens, token_counter, item_container, item_counter, INTEGER_LITERAL);
+                token_counter++;
+                i--;
+                break;
+            case SEMICOLON:
+                assign_token(tokens, token_counter, ";", item_counter, SEMICOLON_ITEM);
                 token_counter++;
                 break;
 
@@ -193,11 +206,6 @@ int token_parser(Token **tokens, char **input_characters) {
         }
         i++;
     } while (c != '\0');
-
-    for (i=0; i<token_counter; i++) {
-
-        printf("Token: %d: \n", i);
-    }
 
     return token_counter;
 }
@@ -220,6 +228,10 @@ int main(int argc, char **argv) {
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
     token_counter = token_parser(&tokens, &input_characters);
+    printf("token_counter: %d\n", token_counter);
+    for (int i = 0; i < token_counter; i++) {
+        printf("%s\n", tokens[i].token_text);
+    }
 
 
     free(input_characters);
