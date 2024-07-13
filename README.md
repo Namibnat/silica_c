@@ -2,6 +2,12 @@
 
 A playground to teach myself about how compilers work.
 
+This project is going at a snails pace because I'm only spending an hour a day on it
+and during that hour, I'm learning more of C, how compilers work and writing the code.
+
+So, it's going to take a while, but it is already amazing how much better I understand
+the workings of programming languages.
+
 
 ## Background
 
@@ -13,6 +19,9 @@ never taken on something like a compiler before.  I'm not certain I'll ever fini
 this, or even get very far.  In recent years, most of my coding has been focused on
 things that help me with my own skills in my work, but I miss the pure joy of
 doing coding that has no real value in the job market, but that are purely for fun.
+
+In terms of abstraction, it is interesting to think about C as a high-level language, meaning
+it is the highest level of language where you can still reason clearly about the machine.
 
 
 ## The plan
