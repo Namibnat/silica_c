@@ -101,3 +101,8 @@ I'll update this when I have something you can play around with.  But, **please 
 don't know what I'm doing, and might be doing all sorts of memory stuff badly, and may break your system.
 Only use this code if you know C.  That said, please feel free to download it and play around with it.
 
+## Related Content:
+
+- YouTube video on Two's Compliment: https://youtu.be/kv8t2zCXPwA?si=-k8MpN5w4AyzKGoU
+
+
