@@ -25,6 +25,7 @@
 	•	String Literals: "hello", "world", "sample", etc.
 	•	Boolean Literals: true, false (from <stdbool.h>)
 */
+
 #ifndef CHMARGS_FIND_C_H
 #define CHMARGS_FIND_C_H
 
@@ -47,14 +48,16 @@
 
 #define INPUT_CHAR_LENGTH 100
 #define MAX_FILENAME_LEN 100
-#define MAX_WORD_LENGTH 100  // TODO: PROBABLY TAKE IT OUT.
+#define MAX_WORD_LENGTH 100
 #define INITIAL_ARRAY_SIZE 10
 
 typedef struct {
     int token_type;
     char *token_text;
+    void *next;
 } Token;
 
+// TODO: I can probably get rid of this???
 typedef Token *Tokens;
 
 typedef enum {
@@ -67,7 +70,7 @@ typedef enum {
 
 typedef enum {
     KEYWORD,
-    ITENTIFIER,
+    IDENTIFIER,
     LEFT_PARENTHESIS,
     RIGHT_PARENTHESIS,
     LEFT_BRACE,
@@ -77,6 +80,7 @@ typedef enum {
 } c_types;
 
 bool is_valid_text_inner(char c);
+int identify_code_string(char *text);
 void assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size, int item_type);
 void free_tokens(Token *tokens, int token_counter);
 void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name);

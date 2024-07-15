@@ -26,17 +26,18 @@ void assign_token(Token **tokens, int token_counter, char *item, unsigned int it
     }
     (*tokens)[token_counter].token_type = item_type;
     char *token_text = (char *)malloc(item_size * sizeof(char));
+    if (token_text == NULL) {
+        perror("Failed to allocate memory for token text");
+        exit(EXIT_FAILURE);
+    }
     (*tokens)[token_counter].token_text = token_text;
     strcpy((*tokens)[token_counter].token_text, item);
-
-
-    // Next -> malloc to create heap memory for the item.
-    printf("---> %s is %d\n", item, item_size);
 }
 
 void free_tokens(Token *tokens, int token_counter){
-    // TODO: cycle through the arrays and dealocate the memory for each item.
-    // free(token_text);
+    for (int i = 0; i < token_counter; i++) {
+        free(tokens[i].token_text);
+    }
     free(tokens);
 }
 
@@ -134,10 +135,22 @@ void read_file(char *input_file_name, char **input_characters) {
     fclose(file);
 }
 
+int identify_code_string(char *text) {
+    // TODO: do logic to sort keywords form identifiers.
+    if (strcmp(text, "int")) {
+        return KEYWORD;
+    }
+    if (strcmp(text, "return")) {
+        return KEYWORD;
+    }
+
+    return IDENTIFIER;
+}
+
 int token_parser(Token **tokens, char **input_characters) {
     int i = 0;
     char c;
-    char item_container[50];  // TODO: GET RID OF MAGIC NUMBER, AND ASSIGN ON THE HEAP?
+    char item_container[50];
     int item_counter;
     int token_counter = 0;
 
@@ -159,8 +172,7 @@ int token_parser(Token **tokens, char **input_characters) {
                 } while (is_valid_text_inner(c));
                 item_container[item_counter++] = '\0';
 
-                // TODO: do logic to sort keywords form itentifiers.
-                assign_token(tokens, token_counter, item_container, item_counter, KEYWORD);
+                assign_token(tokens, token_counter, item_container, item_counter, identify_code_string(item_container));
                 token_counter++;
                 i--;
                 break;
@@ -215,7 +227,6 @@ int main(int argc, char **argv) {
     /*
      * TODO:
      *  - Make tokens into a linked list.
-     *  - Assign the items in the tokens, malloc for space
      *  - Then start on the next section
      */
 
@@ -228,6 +239,7 @@ int main(int argc, char **argv) {
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
     token_counter = token_parser(&tokens, &input_characters);
+
     printf("token_counter: %d\n", token_counter);
     for (int i = 0; i < token_counter; i++) {
         printf("%s\n", tokens[i].token_text);
