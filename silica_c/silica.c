@@ -179,7 +179,6 @@ int token_parser(Token **tokens, char **input_characters) {
 
             case OPEN_BRACKET:
                 assign_token(tokens, token_counter, "(", item_counter, LEFT_PARENTHESIS);
-                printf("open (\n");
                 token_counter++;
                 break;
 
@@ -235,6 +234,9 @@ int main(int argc, char **argv) {
     char output_file_name[MAX_FILENAME_LEN];
     char *input_characters = NULL;
     Token *tokens = NULL;
+    // TODO: Working towards changing to linked list -> use linked tokens to keep track of tail to add
+    // to the end of the linked list.
+    LinkedTokens linked_toks = {NULL, NULL};
 
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);

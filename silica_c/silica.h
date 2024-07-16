@@ -51,24 +51,30 @@
 #define MAX_WORD_LENGTH 100
 #define INITIAL_ARRAY_SIZE 10
 
-typedef struct {
+typedef struct Token{
     int token_type;
     char *token_text;
-    void *next;
+    struct Token *next;
 } Token;
 
-// TODO: I can probably get rid of this???
-typedef Token *Tokens;
+typedef struct LinkedTokens {
+    Token *head;
+    Token *tail;
+} LinkedTokens;
 
-typedef enum {
+
+// TODO: I can probably get rid of this???
+// typedef Token *Tokens;
+
+enum item_state{
     START_SOURCE,
     IN_BRACKETS,
     IN_CURLY_BRACKETS,
     IN_NEW_STATEMENT,
     IN_DIGIT,
-} item_state;
+};
 
-typedef enum {
+enum c_types{
     KEYWORD,
     IDENTIFIER,
     LEFT_PARENTHESIS,
@@ -77,7 +83,7 @@ typedef enum {
     RIGHT_BRACE,
     INTEGER_LITERAL,
     SEMICOLON_ITEM,
-} c_types;
+};
 
 bool is_valid_text_inner(char c);
 int identify_code_string(char *text);
