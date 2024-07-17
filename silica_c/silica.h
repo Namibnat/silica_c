@@ -63,9 +63,6 @@ typedef struct LinkedTokens {
 } LinkedTokens;
 
 
-// TODO: I can probably get rid of this???
-// typedef Token *Tokens;
-
 enum item_state{
     START_SOURCE,
     IN_BRACKETS,

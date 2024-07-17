@@ -10,11 +10,94 @@ bool is_valid_text_inner(char c) {
             (c >= 0x30 && c <= 0x39));
 }
 
+
 bool is_digit(char c) {
     return (c >= LOW_DIGIT && c <= HIGH_DIGIT);
 }
 
+
+void free_tokens(Token *tokens, int token_counter){
+    for (int i = 0; i < token_counter; i++) {
+        free(tokens[i].token_text);
+    }
+    free(tokens);
+}
+
+
+void read_file(char *input_file_name, char **input_characters) {
+    char c;
+    int capacity = INITIAL_ARRAY_SIZE;
+    int count = 0;
+    char *padded_characters = NULL;
+
+    *input_characters = (char *)malloc(capacity * sizeof(char));
+    if (*input_characters == NULL) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        exit(EXIT_FAILURE);
+    }
+
+
+    FILE *file = fopen(input_file_name, "r");
+    if (file == NULL) {
+        fprintf(stderr, "Could not open file.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    while ((c=fgetc(file)) != EOF) {
+        if ((count + 2) >= capacity) {
+            capacity *= 2;
+            padded_characters = (char *)realloc(*input_characters, capacity * sizeof(char));
+            if (padded_characters == NULL) {
+                fprintf(stderr, "Memory reallocation failed.\n");
+                fclose(file);
+                exit(EXIT_FAILURE);
+            }
+            *input_characters = padded_characters;
+        }
+        (*input_characters)[count] = c;
+        count++;
+    }
+
+    (*input_characters)[count] = '\0';
+    fclose(file);
+}
+
+void assign_token_updated(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type) {
+    /* Test and replace assign_token with this version, to use linked lists.
+     * Probably still buggy.
+     */
+    ;
+    Token *new_token = (Token *)malloc(sizeof(Token));
+    if (new_token == NULL) {
+        perror("Failed to allocate memory for tokens");
+        exit(EXIT_FAILURE);
+    }
+    char *token_text = (char *)malloc(item_size * sizeof(char));
+    if (token_text == NULL) {
+        perror("Failed to allocate memory for token text");
+        exit(EXIT_FAILURE);
+    }
+    token_text = item;
+    new_token->token_type = item_type;
+    new_token->token_text = token_text;
+
+    if ((*linked_toks)->head == NULL){
+        (*linked_toks)->head = new_token;
+    } else {
+        if ((*linked_toks)->head == NULL){
+            (*linked_toks)->head->next = new_token;
+            (*linked_toks)->tail = new_token;
+        } else {
+            (*linked_toks)->tail->next = new_token;
+            (*linked_toks)->tail = new_token;
+        }
+    }
+
+}
+
+
 void assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size, int item_type) {
+    /* working on replacing this, so that I can use linked lists for the tokens */
     if (token_counter > 0) {
         Token *tokens_update;
         tokens_update = realloc(*tokens, (token_counter + 1) * sizeof(Token));
@@ -34,12 +117,6 @@ void assign_token(Token **tokens, int token_counter, char *item, unsigned int it
     strcpy((*tokens)[token_counter].token_text, item);
 }
 
-void free_tokens(Token *tokens, int token_counter){
-    for (int i = 0; i < token_counter; i++) {
-        free(tokens[i].token_text);
-    }
-    free(tokens);
-}
 
 void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name) {
 
@@ -50,6 +127,7 @@ void parse_arguments(int argc, char **argv, char *input_file_name, char *output_
 
     short have_input_file = 0;
     short have_output_file = 0;
+
 
     for (i = 1; i < argc; i++){
         arglen = strlen(argv[i]);
@@ -97,43 +175,6 @@ void parse_arguments(int argc, char **argv, char *input_file_name, char *output_
     }
 }
 
-void read_file(char *input_file_name, char **input_characters) {
-    char c;
-    int capacity = INITIAL_ARRAY_SIZE;
-    int count = 0;
-    char *padded_characters = NULL;
-
-    *input_characters = (char *)malloc(capacity * sizeof(char));
-    if (*input_characters == NULL) {
-        fprintf(stderr, "Memory allocation failed.\n");
-        exit(EXIT_FAILURE);
-    }
-
-
-    FILE *file = fopen(input_file_name, "r");
-    if (file == NULL) {
-        fprintf(stderr, "Could not open file.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    while ((c=fgetc(file)) != EOF) {
-        if ((count + 2) >= capacity) {
-            capacity *= 2;
-            padded_characters = (char *)realloc(*input_characters, capacity * sizeof(char));
-            if (padded_characters == NULL) {
-                fprintf(stderr, "Memory reallocation failed.\n");
-                fclose(file);
-                exit(EXIT_FAILURE);
-            }
-            *input_characters = padded_characters;
-        }
-        (*input_characters)[count] = c;
-        count++;
-    }
-
-    (*input_characters)[count] = '\0';
-    fclose(file);
-}
 
 int identify_code_string(char *text) {
     // TODO: do logic to sort keywords form identifiers.
@@ -146,6 +187,7 @@ int identify_code_string(char *text) {
 
     return IDENTIFIER;
 }
+
 
 int token_parser(Token **tokens, char **input_characters) {
     int i = 0;
@@ -236,7 +278,6 @@ int main(int argc, char **argv) {
     Token *tokens = NULL;
     // TODO: Working towards changing to linked list -> use linked tokens to keep track of tail to add
     // to the end of the linked list.
-    LinkedTokens linked_toks = {NULL, NULL};
 
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
