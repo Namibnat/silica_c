@@ -84,11 +84,10 @@ enum c_types{
 
 bool is_valid_text_inner(char c);
 int identify_code_string(char *text);
-void assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size, int item_type);
-void free_tokens(Token *tokens, int token_counter);
+void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type);
 void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name);
 void read_file(char *input_file_name, char **input_characters);
-int token_parser(Token **tokens, char **input_characters);
+void token_parser(LinkedTokens **linked_toks, char **input_characters);
 
 #endif
 

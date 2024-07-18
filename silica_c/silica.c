@@ -15,15 +15,6 @@ bool is_digit(char c) {
     return (c >= LOW_DIGIT && c <= HIGH_DIGIT);
 }
 
-
-void free_tokens(Token *tokens, int token_counter){
-    for (int i = 0; i < token_counter; i++) {
-        free(tokens[i].token_text);
-    }
-    free(tokens);
-}
-
-
 void read_file(char *input_file_name, char **input_characters) {
     char c;
     int capacity = INITIAL_ARRAY_SIZE;
@@ -62,11 +53,11 @@ void read_file(char *input_file_name, char **input_characters) {
     fclose(file);
 }
 
-void assign_token_updated(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type) {
+
+void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type) {
     /* Test and replace assign_token with this version, to use linked lists.
      * Probably still buggy.
      */
-    ;
     Token *new_token = (Token *)malloc(sizeof(Token));
     if (new_token == NULL) {
         perror("Failed to allocate memory for tokens");
@@ -82,6 +73,7 @@ void assign_token_updated(LinkedTokens **linked_toks, char *item, unsigned int i
     new_token->token_text = token_text;
 
     if ((*linked_toks)->head == NULL){
+        printf(">>>>>>>>><<<<<<<<<<<<<\n");
         (*linked_toks)->head = new_token;
     } else {
         if ((*linked_toks)->head == NULL){
@@ -93,28 +85,6 @@ void assign_token_updated(LinkedTokens **linked_toks, char *item, unsigned int i
         }
     }
 
-}
-
-
-void assign_token(Token **tokens, int token_counter, char *item, unsigned int item_size, int item_type) {
-    /* working on replacing this, so that I can use linked lists for the tokens */
-    if (token_counter > 0) {
-        Token *tokens_update;
-        tokens_update = realloc(*tokens, (token_counter + 1) * sizeof(Token));
-        if (tokens_update == NULL) {
-            perror("Failed to allocate memory for tokens");
-            exit(EXIT_FAILURE);
-        }
-        *tokens = tokens_update;
-    }
-    (*tokens)[token_counter].token_type = item_type;
-    char *token_text = (char *)malloc(item_size * sizeof(char));
-    if (token_text == NULL) {
-        perror("Failed to allocate memory for token text");
-        exit(EXIT_FAILURE);
-    }
-    (*tokens)[token_counter].token_text = token_text;
-    strcpy((*tokens)[token_counter].token_text, item);
 }
 
 
@@ -189,18 +159,12 @@ int identify_code_string(char *text) {
 }
 
 
-int token_parser(Token **tokens, char **input_characters) {
+void token_parser(LinkedTokens **linked_toks, char **input_characters) {
     int i = 0;
     char c;
     char item_container[50];
     int item_counter;
     int token_counter = 0;
-
-    *tokens = (Token *)malloc(sizeof(Token));
-    if (tokens == NULL) {
-        perror("Failed to allocate memory for tokens");
-        exit(EXIT_FAILURE);
-    }
 
     do  {
         c = (*input_characters)[i];
@@ -213,29 +177,29 @@ int token_parser(Token **tokens, char **input_characters) {
                     c = (*input_characters)[++i];
                 } while (is_valid_text_inner(c));
                 item_container[item_counter++] = '\0';
+                assign_token(linked_toks, item_container, item_counter, identify_code_string(item_container));
 
-                assign_token(tokens, token_counter, item_container, item_counter, identify_code_string(item_container));
                 token_counter++;
                 i--;
                 break;
 
             case OPEN_BRACKET:
-                assign_token(tokens, token_counter, "(", item_counter, LEFT_PARENTHESIS);
+                assign_token(linked_toks, "(", item_counter, LEFT_PARENTHESIS);
                 token_counter++;
                 break;
 
             case CLOSE_BRACKET:
-                assign_token(tokens, token_counter, ")", item_counter, RIGHT_PARENTHESIS);
+                assign_token(linked_toks, ")", item_counter, RIGHT_PARENTHESIS);
                 token_counter++;
                 break;
 
             case OPEN_CURLY_BRACKET:
-                assign_token(tokens, token_counter, "{", item_counter, LEFT_BRACE);
+                assign_token(linked_toks, "{", item_counter, LEFT_BRACE);
                 token_counter++;
                 break;
 
             case CLOSE_CURLY_BRACKET:
-                assign_token(tokens, token_counter, "}", item_counter, RIGHT_BRACE);
+                assign_token(linked_toks, "}", item_counter, RIGHT_BRACE);
                 token_counter++;
                 break;
 
@@ -245,12 +209,12 @@ int token_parser(Token **tokens, char **input_characters) {
                     c = (*input_characters)[++i];
                 } while (is_digit(c));
                 item_container[item_counter++] = '\0';
-                assign_token(tokens, token_counter, item_container, item_counter, INTEGER_LITERAL);
+                assign_token(linked_toks, item_container, item_counter, INTEGER_LITERAL);
                 token_counter++;
                 i--;
                 break;
             case SEMICOLON:
-                assign_token(tokens, token_counter, ";", item_counter, SEMICOLON_ITEM);
+                assign_token(linked_toks, ";", item_counter, SEMICOLON_ITEM);
                 token_counter++;
                 break;
 
@@ -260,37 +224,23 @@ int token_parser(Token **tokens, char **input_characters) {
         i++;
     } while (c != '\0');
 
-    return token_counter;
 }
 
 
 int main(int argc, char **argv) {
     /*
      * TODO:
-     *  - Make tokens into a linked list.
      *  - Then start on the next section
      */
 
-    int token_counter;
     char input_file_name[MAX_FILENAME_LEN];
     char output_file_name[MAX_FILENAME_LEN];
     char *input_characters = NULL;
-    Token *tokens = NULL;
-    // TODO: Working towards changing to linked list -> use linked tokens to keep track of tail to add
-    // to the end of the linked list.
+    LinkedTokens *linked_toks = {NULL, NULL};
 
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
-    token_counter = token_parser(&tokens, &input_characters);
-
-    printf("token_counter: %d\n", token_counter);
-    for (int i = 0; i < token_counter; i++) {
-        printf("%s\n", tokens[i].token_text);
-    }
-
-
-    free(input_characters);
-    free_tokens(tokens, token_counter);
+    token_parser(&linked_toks, &input_characters);
 
     return 0;
 }
