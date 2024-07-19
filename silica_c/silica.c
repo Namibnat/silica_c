@@ -55,9 +55,6 @@ void read_file(char *input_file_name, char **input_characters) {
 
 
 void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type) {
-    /* Test and replace assign_token with this version, to use linked lists.
-     * Probably still buggy.
-     */
     Token *new_token = (Token *)malloc(sizeof(Token));
     if (new_token == NULL) {
         perror("Failed to allocate memory for tokens");
@@ -68,9 +65,10 @@ void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size
         perror("Failed to allocate memory for token text");
         exit(EXIT_FAILURE);
     }
-    token_text = item;
+    strcpy(token_text, item);
     new_token->token_type = item_type;
     new_token->token_text = token_text;
+    new_token->next = NULL;
 
     if ((*linked_toks)->head == NULL){
         (*linked_toks)->head = new_token;
@@ -212,6 +210,7 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters) {
                 token_counter++;
                 i--;
                 break;
+
             case SEMICOLON:
                 assign_token(linked_toks, ";", item_counter, SEMICOLON_ITEM);
                 token_counter++;
@@ -229,12 +228,13 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters) {
 int main(int argc, char **argv) {
     /*
      * TODO:
-     *  - Then start on the next section
+     *  - Start on syntax analysis of the basic input
      */
 
     char input_file_name[MAX_FILENAME_LEN];
     char output_file_name[MAX_FILENAME_LEN];
     char *input_characters = NULL;
+
     LinkedTokens *linked_toks = malloc(sizeof(LinkedTokens));
     if (!linked_toks) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -247,6 +247,12 @@ int main(int argc, char **argv) {
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
     token_parser(&linked_toks, &input_characters);
+
+    Token *output_tok = (*linked_toks).head;
+    while ((*output_tok).next != NULL) {
+        printf("%s\n", (*output_tok).token_text);
+        output_tok = output_tok->next;
+    }
 
     return 0;
 }
