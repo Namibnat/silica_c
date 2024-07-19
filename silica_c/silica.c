@@ -73,10 +73,9 @@ void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size
     new_token->token_text = token_text;
 
     if ((*linked_toks)->head == NULL){
-        printf(">>>>>>>>><<<<<<<<<<<<<\n");
         (*linked_toks)->head = new_token;
     } else {
-        if ((*linked_toks)->head == NULL){
+        if ((*linked_toks)->tail == NULL){
             (*linked_toks)->head->next = new_token;
             (*linked_toks)->tail = new_token;
         } else {
@@ -236,7 +235,14 @@ int main(int argc, char **argv) {
     char input_file_name[MAX_FILENAME_LEN];
     char output_file_name[MAX_FILENAME_LEN];
     char *input_characters = NULL;
-    LinkedTokens *linked_toks = {NULL, NULL};
+    LinkedTokens *linked_toks = malloc(sizeof(LinkedTokens));
+    if (!linked_toks) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return EXIT_FAILURE;
+    }
+
+    (*linked_toks).head = NULL;
+    (*linked_toks).tail = NULL;
 
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
