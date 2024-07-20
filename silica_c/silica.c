@@ -225,6 +225,19 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters) {
 }
 
 
+void syntax_analysis(Token **token) {
+    short state_stack[100];
+    /*
+     * The next step here is for me to figoure out how
+     * to build out a tree structure, etc.
+     */
+    while ((*token)->next != NULL) {
+        printf("%s\n", (*token)->token_text);
+        *token = (*token)->next;
+    }
+}
+
+
 int main(int argc, char **argv) {
     /*
      * TODO:
@@ -247,12 +260,7 @@ int main(int argc, char **argv) {
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
     token_parser(&linked_toks, &input_characters);
-
-    Token *output_tok = (*linked_toks).head;
-    while ((*output_tok).next != NULL) {
-        printf("%s\n", (*output_tok).token_text);
-        output_tok = output_tok->next;
-    }
+    syntax_analysis(&linked_toks->head);
 
     return 0;
 }
