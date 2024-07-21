@@ -6,13 +6,13 @@ This project is going at a snails pace because I'm only spending an hour a day o
 and during that hour, I'm learning more of C, how compilers work and writing the code.
 
 So, it's going to take a while, but it is already amazing how much better I understand
-the workings of programming languages.
+the workings of programming languages. And the C language.
 
 
 ## Background
 
 I work as a python developer, but I've always felt attracted to low-level code
-and understanding how machines work.
+and understanding how machines work. In general, I want to know how stuff works.
 
 I've written some things in C before, and played around with assembly, but I've
 never taken on something like a compiler before.  I'm not certain I'll ever finish
@@ -61,7 +61,7 @@ some point.
 
 2. "Crafting Interpreters" by Robert Nystrom.  I've read most of this book already, largely
 when I used to commute.  Although this book is about making your own language, it's probably
-the most accessable book out there.  I think.  Even though this book is not directly what I'm
+the most accessible book out there.  I think.  Even though this book is not directly what I'm
 doing, I suspect that it will be the first book that I'll actually read cover to cover.
 
 3. "The C Programming Language", Second Edition by Brian W. Kernighan and Denis M. Ritchie.  Aka, K&R.
@@ -72,7 +72,7 @@ read most of.  I know it's probably not the best place to learn C from.  It is j
 started with this book and my plan is to slowly poke through it so that I get up to scratch
 with assembly.  I have been learning some ARM assembly, but I think I'll put that aside while
 I work on this project.  Maybe down the line I'll get some minimal compiler working
-on a Rasberry Pi or something, but I'll start on Linux.
+on a Raspberry Pi or something, but I'll start on Linux.
 
 5. chatGPT.  Of course, these days every dev is working with ChatGPT.  Here is how I see my main
 use of it, I'll get a few boilerplate bits if needed, get debugging help, and use it to help
@@ -92,7 +92,8 @@ from Scratch".  I'll take a look at that when it comes out.
 ## Contributing
 
 This is a personal project, but if you're playing around with it and feel like I've done something
-silly, and for some reason you want to point me in the right direction, please feel free.
+silly, and for some reason you want to point me in the right direction, please feel free. Raise an issue,
+or a pull-request.
 
 
 ## Usage
@@ -101,8 +102,30 @@ I'll update this when I have something you can play around with.  But, **please 
 don't know what I'm doing, and might be doing all sorts of memory stuff badly, and may break your system.
 Only use this code if you know C.  That said, please feel free to download it and play around with it.
 
+For now, you can go into the silica_c directory, and type:
+
+```bash
+make
+```
+
+And then you can run:
+
+```bash
+./silica sample.c
+```
+
+To clean up, just do:
+
+```bash
+make clean
+```
+
+
 ## Related Content:
 
-- YouTube video on Two's Compliment: https://youtu.be/kv8t2zCXPwA?si=-k8MpN5w4AyzKGoU
+### YouTube videos on:
+
+- Two's Compliment: https://youtu.be/kv8t2zCXPwA?si=-k8MpN5w4AyzKGoU
+- How computers handle negative numbers: https://youtu.be/kv8t2zCXPwA
 
 
