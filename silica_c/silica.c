@@ -226,10 +226,29 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters) {
 
 
 void syntax_analysis(Token **token) {
-    short state_stack[100];
+    bool in_func = false;
     /*
      * The next step here is for me to figoure out how
      * to build out a tree structure, etc.
+     *
+     * I'll read up how to do this, but for now, just considering how it might be done
+     * I have these thoughts:
+     *
+     * Firstly, I'm going to ignore trying to do anything useful.  I will build what
+     * I need to break down `sample.c` into it's bits and work all the way through
+     * to code generation and creating an ELF binary of it before I work on adding
+     * in more complexity.
+     *
+     * In doing that, I'll keep going back and re-working old code, which might sometimes
+     * mean throwing out entire parts and starting over.  The idea being to learn
+     * one thing at a time, keep as little new stuff in my head as possible.
+     *
+     * So, `int main()` tells me I'm starting the main function (I'll ignore func args for now.
+     *
+     * `return ` should handle the return type.  Since it's the main function, that should tell
+     * me that I'm returning it to the shell.
+     *
+     *
      */
     while ((*token)->next != NULL) {
         printf("%s\n", (*token)->token_text);
