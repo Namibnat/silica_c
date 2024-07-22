@@ -82,6 +82,24 @@ enum c_types{
     SEMICOLON_ITEM,
 };
 
+/* Starting to add in details to work towards syntax analysis */
+
+// Define types of nodes
+typedef enum { NODE_TYPE_OPERATOR, NODE_TYPE_NUMBER } NodeType;
+
+// Struct for a node in the parse tree
+typedef struct Node {
+    NodeType type;
+    union {
+        struct {
+            char operator;
+            struct Node *left;
+            struct Node *right;
+        } operator;
+        int number;
+    } data;
+} Node;
+
 bool is_valid_text_inner(char c);
 int identify_code_string(char *text);
 void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type);

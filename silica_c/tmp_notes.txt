@@ -1,0 +1,209 @@
+Syntax Analyiss & Symbol Tables:
+
+* Syntax analysis (parsing) -> held by a parse tree.
+* In C, use combo of structs to do this.
+* Each note represents a construct occuring in the source code.
+* You can have an enum for node types.
+* The Syntax node can look like this:
+
+```c
+typedef struct Node {
+    NodeType type; // Where NodeType is an enum
+    union {
+        struct {
+            char operator;
+            struct Node *left;
+            struct Node *right;
+        } operator;
+        int number;
+    } data;
+} Node;
+```
+
+The NodeType would be something like this:
+
+```c
+// Define types of nodes
+typedef enum { NODE_TYPE_OPERATOR, NODE_TYPE_NUMBER } NodeType;
+```
+
+Examples functions using it:
+
+```c
+Node* createNumberNode(int number) {
+    Node *node = (Node *)malloc(sizeof(Node));
+    node->type = NODE_TYPE_NUMBER;
+    node->data.number = number;
+    return node;
+}
+
+Node* createOperatorNode(char operator, Node *left, Node *right) {
+    Node *node = (Node *)malloc(sizeof(Node));
+    node->type = NODE_TYPE_OPERATOR;
+    node->data.operator.operator = operator;
+    node->data.operator.left = left;
+    node->data.operator.right = right;
+    return node;
+}
+```
+
+Calling those:
+
+```c
+// Example expression: (3 + 5) * 2
+Node *left = createOperatorNode('+', createNumberNode(3), createNumberNode(5));
+Node *root = createOperatorNode('*', left, createNumberNode(2));
+
+// Here, `root` is the root of the parse tree for the expression "(3 + 5) * 2"
+```
+
+To manage state, such as variable scope or whether you're inside a function, additional structures and context information are necessary alongside the parse tree. This typically involves maintaining symbol tables and context-specific flags during the parsing process. Let's elaborate on how this can be achieved and provide an example for parsing a simple function like `int main(){ return 0;}`.
+
+### Maintaining State During Parsing
+
+1. **Symbol Table**:
+   - A symbol table is used to store information about variables, functions, and other identifiers. It keeps track of scope and type information.
+
+2. **Context Flags**:
+   - Flags or context markers can be used to keep track of whether you're inside a function, a loop, a conditional, etc.
+
+3. **Parse Tree Nodes**:
+   - Nodes will include additional information to represent declarations, statements, expressions, and blocks of code.
+
+### Struct Definitions
+
+Here are the updated struct definitions to include function and statement nodes, along with a simple symbol table:
+
+#### Symbol Table Entry
+
+```c
+typedef struct SymbolTableEntry {
+    char *name;
+    char *type;  // Could be more complex, e.g., an enum or a struct
+    struct SymbolTableEntry *next;
+} SymbolTableEntry;
+
+typedef struct {
+    SymbolTableEntry *head;
+} SymbolTable;
+```
+
+#### Parse Tree Nodes
+
+```c
+typedef enum {
+    NODE_TYPE_OPERATOR,
+    NODE_TYPE_NUMBER,
+    NODE_TYPE_FUNCTION,
+    NODE_TYPE_RETURN,
+    NODE_TYPE_BLOCK
+} NodeType;
+
+typedef struct Node {
+    NodeType type;
+    union {
+        struct {
+            char operator;
+            struct Node *left;
+            struct Node *right;
+        } operator;
+        int number;
+        struct {
+            char *name;
+            struct Node *body;
+        } function;
+        struct {
+            struct Node *expression;
+        } ret;
+        struct {
+            struct Node **statements;
+            int statement_count;
+        } block;
+    } data;
+} Node;
+```
+
+### Example of Parsing `int main() { return 0; }`
+
+#### Node Creation Functions
+
+```c
+Node* createNumberNode(int number) {
+    Node *node = (Node *)malloc(sizeof(Node));
+    node->type = NODE_TYPE_NUMBER;
+    node->data.number = number;
+    return node;
+}
+
+Node* createReturnNode(Node *expression) {
+    Node *node = (Node *)malloc(sizeof(Node));
+    node->type = NODE_TYPE_RETURN;
+    node->data.ret.expression = expression;
+    return node;
+}
+
+Node* createFunctionNode(char *name, Node *body) {
+    Node *node = (Node *)malloc(sizeof(Node));
+    node->type = NODE_TYPE_FUNCTION;
+    node->data.function.name = name;
+    node->data.function.body = body;
+    return node;
+}
+
+Node* createBlockNode(Node **statements, int statement_count) {
+    Node *node = (Node *)malloc(sizeof(Node));
+    node->type = NODE_TYPE_BLOCK;
+    node->data.block.statements = statements;
+    node->data.block.statement_count = statement_count;
+    return node;
+}
+```
+
+### Parsing `int main() { return 0; }`
+
+To parse the function `int main() { return 0; }`, the nodes would be created and linked as follows:
+
+```c
+int main() {
+    // Create the return statement
+    Node *returnExpression = createNumberNode(0);
+    Node *returnStatement = createReturnNode(returnExpression);
+
+    // Create the block containing the return statement
+    Node *statements[] = { returnStatement };
+    Node *block = createBlockNode(statements, 1);
+
+    // Create the function node
+    Node *function = createFunctionNode("main", block);
+
+    // Now the 'function' node represents the entire parsed structure
+    // Print or process the parse tree as needed
+
+    // Example of processing:
+    printf("Function name: %s\n", function->data.function.name);
+    Node *stmt = function->data.function.body->data.block.statements[0];
+    if (stmt->type == NODE_TYPE_RETURN) {
+        printf("Return value: %d\n", stmt->data.ret.expression->data.number);
+    }
+
+
+    return 0;
+}
+```
+
+### Explanation
+
+- **Symbol Table**: You would typically maintain a symbol table during parsing to keep track of variables, functions, and their scopes.
+- **Node Types**: Different node types represent different parts of the syntax, such as numbers, operators, functions, return statements, and blocks of code.
+- **Function Node**: Represents a function with its name and body.
+- **Block Node**: Represents a block of statements, useful for function bodies and control structures.
+
+### Maintaining State
+
+- **Function Scope**: When you encounter a function declaration, you enter a new scope. Variables declared within the function are added to the symbol table under this scope.
+- **Variable Scope**: For each block of code, manage the scope to ensure variables are correctly resolved. Use a stack of symbol tables if needed.
+
+### Conclusion
+
+By creating and linking nodes in this manner and maintaining a symbol table to manage scope, you can effectively parse and represent the structure of C programs. This forms the basis for further stages in the compiler, such as semantic analysis and code generation.
+
