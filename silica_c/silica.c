@@ -15,6 +15,7 @@ bool is_digit(char c) {
     return (c >= LOW_DIGIT && c <= HIGH_DIGIT);
 }
 
+
 void read_file(char *input_file_name, char **input_characters) {
     char c;
     int capacity = INITIAL_ARRAY_SIZE;
@@ -56,15 +57,18 @@ void read_file(char *input_file_name, char **input_characters) {
 
 void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type) {
     Token *new_token = (Token *)malloc(sizeof(Token));
+
     if (new_token == NULL) {
         perror("Failed to allocate memory for tokens");
         exit(EXIT_FAILURE);
     }
+
     char *token_text = (char *)malloc(item_size * sizeof(char));
     if (token_text == NULL) {
         perror("Failed to allocate memory for token text");
         exit(EXIT_FAILURE);
     }
+
     strcpy(token_text, item);
     new_token->token_type = item_type;
     new_token->token_text = token_text;
@@ -86,7 +90,6 @@ void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size
 
 
 void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name) {
-
     int i;
     int arglen;
     int outlen;
@@ -144,7 +147,6 @@ void parse_arguments(int argc, char **argv, char *input_file_name, char *output_
 
 
 int identify_code_string(char *text) {
-    // TODO: do logic to sort keywords form identifiers.
     if (strcmp(text, "int")) {
         return KEYWORD;
     }
@@ -225,32 +227,19 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters) {
 }
 
 
+void add_to_symbol_table(Token **token) {
+    // Build up the initial symbol table
+    // Here add the logic such as scope.
+    ;
+}
+
+
 void syntax_analysis(Token **token) {
-    bool in_func = false;
-    /*
-     * The next step here is for me to figoure out how
-     * to build out a tree structure, etc.
-     *
-     * I'll read up how to do this, but for now, just considering how it might be done
-     * I have these thoughts:
-     *
-     * Firstly, I'm going to ignore trying to do anything useful.  I will build what
-     * I need to break down `sample.c` into it's bits and work all the way through
-     * to code generation and creating an ELF binary of it before I work on adding
-     * in more complexity.
-     *
-     * In doing that, I'll keep going back and re-working old code, which might sometimes
-     * mean throwing out entire parts and starting over.  The idea being to learn
-     * one thing at a time, keep as little new stuff in my head as possible.
-     *
-     * So, `int main()` tells me I'm starting the main function (I'll ignore func args for now.
-     *
-     * `return ` should handle the return type.  Since it's the main function, that should tell
-     * me that I'm returning it to the shell.
-     *
-     *
-     */
     while ((*token)->next != NULL) {
+
+        add_to_symbol_table(token);
+
+        // build up syntax tree
         printf("%s\n", (*token)->token_text);
         *token = (*token)->next;
     }
