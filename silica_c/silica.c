@@ -30,7 +30,7 @@ void read_file(char *input_file_name, char **input_characters) {
 
 
     FILE *file = fopen(input_file_name, "r");
-    if (file == NULL) {
+    if (!file) {
         fprintf(stderr, "Could not open file.\n");
         exit(EXIT_FAILURE);
     }
@@ -39,7 +39,7 @@ void read_file(char *input_file_name, char **input_characters) {
         if ((count + 2) >= capacity) {
             capacity *= 2;
             padded_characters = (char *)realloc(*input_characters, capacity * sizeof(char));
-            if (padded_characters == NULL) {
+            if (!padded_characters) {
                 fprintf(stderr, "Memory reallocation failed.\n");
                 fclose(file);
                 exit(EXIT_FAILURE);
@@ -58,13 +58,13 @@ void read_file(char *input_file_name, char **input_characters) {
 void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type) {
     Token *new_token = (Token *)malloc(sizeof(Token));
 
-    if (new_token == NULL) {
+    if (!new_token) {
         perror("Failed to allocate memory for tokens");
         exit(EXIT_FAILURE);
     }
 
     char *token_text = (char *)malloc(item_size * sizeof(char));
-    if (token_text == NULL) {
+    if (!token_text) {
         perror("Failed to allocate memory for token text");
         exit(EXIT_FAILURE);
     }
@@ -235,12 +235,22 @@ void add_to_symbol_table(Token **token) {
 
 
 void syntax_analysis(Token **token) {
+    // This is broken for now, but working up to building the next sections
+    char scope[] = "global";  // Just tmp, make constants for it
+                              //
     while ((*token)->next != NULL) {
 
         add_to_symbol_table(token);
 
         // build up syntax tree
         printf("%s\n", (*token)->token_text);
+        if (strcmp((*token)->token_text, "int")){
+            *token = (*token)->next;
+            if (strcmp((*token)->token_text, "main")){
+                    printf("Found main func\n");
+            }
+        }
+
         *token = (*token)->next;
     }
 }
