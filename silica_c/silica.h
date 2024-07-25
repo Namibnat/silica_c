@@ -51,7 +51,34 @@
 #define MAX_WORD_LENGTH 100
 #define INITIAL_ARRAY_SIZE 10
 
-typedef struct Token{
+/*
+ * Symbol Table & Symbols:
+ *
+ * Working on thinking about this:
+ * Needs to hold functions and variables (All Identifiers).
+ * Hold scope
+ * Does it keep track of values?  I'm not sure.
+ *
+ * When adding, basically the table will be checked to see if there
+ * is an entry with the same name in the same scope, if not, added, else, updated (I think).
+ *
+ */
+
+typedef struct Symbol {
+    int scope;
+    char *symbol_name;
+    int type;
+    int value; // Just a placeholder for now.
+    struct Symbol *next;  // Is a linked-list the right way to keep this too?
+} Symbol;
+
+
+typedef struct SymbolTable {
+    Symbol *symbol;
+} SymbolTable;
+
+
+typedef struct Token {
     int token_type;
     char *token_text;
     struct Token *next;
@@ -105,7 +132,7 @@ int identify_code_string(char *text);
 void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type);
 void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name);
 void read_file(char *input_file_name, char **input_characters);
-void token_parser(LinkedTokens **linked_toks, char **input_characters);
+void token_parser(LinkedTokens **linked_toks, char **input_characters, SymbolTable **symbol_table);
 
 #endif
 

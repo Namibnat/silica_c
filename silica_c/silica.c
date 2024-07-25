@@ -72,6 +72,7 @@ void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size
     strcpy(token_text, item);
     new_token->token_type = item_type;
     new_token->token_text = token_text;
+    // TODO: Start here -> if we have an identifier, add to the symbol table.
     new_token->next = NULL;
 
     if ((*linked_toks)->head == NULL){
@@ -158,7 +159,7 @@ int identify_code_string(char *text) {
 }
 
 
-void token_parser(LinkedTokens **linked_toks, char **input_characters) {
+void token_parser(LinkedTokens **linked_toks, char **input_characters, SymbolTable **symbol_table) {
     int i = 0;
     char c;
     char item_container[50];
@@ -227,31 +228,11 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters) {
 }
 
 
-void add_to_symbol_table(Token **token) {
-    // Build up the initial symbol table
-    // Here add the logic such as scope.
-    ;
-}
-
 
 void syntax_analysis(Token **token) {
-    // This is broken for now, but working up to building the next sections
-    char scope[] = "global";  // Just tmp, make constants for it
-                              //
     while ((*token)->next != NULL) {
-
-        add_to_symbol_table(token);
-
-        // build up syntax tree
-        printf("%s\n", (*token)->token_text);
-        if (strcmp((*token)->token_text, "int")){
-            *token = (*token)->next;
-            if (strcmp((*token)->token_text, "main")){
-                    printf("Found main func\n");
-            }
-        }
-
         *token = (*token)->next;
+        printf("Here to do next thing...\n");
     }
 }
 
@@ -266,9 +247,16 @@ int main(int argc, char **argv) {
     char output_file_name[MAX_FILENAME_LEN];
     char *input_characters = NULL;
 
+    SymbolTable *symbol_table = malloc(sizeof(SymbolTable));
+    if (!symbol_table) {
+        fprintf(stderr, "Memory allocation failed for symbol table\n");
+        return EXIT_FAILURE;
+    }
+
+
     LinkedTokens *linked_toks = malloc(sizeof(LinkedTokens));
     if (!linked_toks) {
-        fprintf(stderr, "Memory allocation failed\n");
+        fprintf(stderr, "Memory allocation failed for token list\n");
         return EXIT_FAILURE;
     }
 
@@ -277,7 +265,7 @@ int main(int argc, char **argv) {
 
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
-    token_parser(&linked_toks, &input_characters);
+    token_parser(&linked_toks, &input_characters, &symbol_table);
     syntax_analysis(&linked_toks->head);
 
     return 0;
