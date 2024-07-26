@@ -72,7 +72,7 @@ typedef struct Symbol {
     struct Symbol *next;  // Is a linked-list the right way to keep this too?
 } Symbol;
 
-
+// TODO: Probably need an array or hash table for this.
 typedef struct SymbolTable {
     Symbol *symbol;
 } SymbolTable;
@@ -129,10 +129,11 @@ typedef struct Node {
 
 bool is_valid_text_inner(char c);
 int identify_code_string(char *text);
-void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type);
+void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type, SymbolTable **symbol_table);
 void parse_arguments(int argc, char **argv, char *input_file_name, char *output_file_name);
 void read_file(char *input_file_name, char **input_characters);
 void token_parser(LinkedTokens **linked_toks, char **input_characters, SymbolTable **symbol_table);
+void start_entry_symbol_table(char *item, SymbolTable **symbol_table);
 
 #endif
 

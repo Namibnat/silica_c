@@ -55,7 +55,15 @@ void read_file(char *input_file_name, char **input_characters) {
 }
 
 
-void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type) {
+void start_entry_symbol_table(char *item, SymbolTable **symbol_table){
+    // TODO: pick-up here to add identifiers to the symbol table.
+    // Instead of a linked list, I should use an array or hash-table for this
+    printf("IDENTIFIER %s\n", item);
+
+}
+
+
+void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type, SymbolTable **symbol_table) {
     Token *new_token = (Token *)malloc(sizeof(Token));
 
     if (!new_token) {
@@ -71,8 +79,10 @@ void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size
 
     strcpy(token_text, item);
     new_token->token_type = item_type;
+    if (item_type == IDENTIFIER){
+        start_entry_symbol_table(item, symbol_table);
+    }
     new_token->token_text = token_text;
-    // TODO: Start here -> if we have an identifier, add to the symbol table.
     new_token->next = NULL;
 
     if ((*linked_toks)->head == NULL){
@@ -148,10 +158,10 @@ void parse_arguments(int argc, char **argv, char *input_file_name, char *output_
 
 
 int identify_code_string(char *text) {
-    if (strcmp(text, "int")) {
+    if (strcmp(text, "int") == 0) {
         return KEYWORD;
     }
-    if (strcmp(text, "return")) {
+    if (strcmp(text, "return") == 0) {
         return KEYWORD;
     }
 
@@ -177,29 +187,29 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters, SymbolTab
                     c = (*input_characters)[++i];
                 } while (is_valid_text_inner(c));
                 item_container[item_counter++] = '\0';
-                assign_token(linked_toks, item_container, item_counter, identify_code_string(item_container));
+                assign_token(linked_toks, item_container, item_counter, identify_code_string(item_container), symbol_table);
 
                 token_counter++;
                 i--;
                 break;
 
             case OPEN_BRACKET:
-                assign_token(linked_toks, "(", item_counter, LEFT_PARENTHESIS);
+                assign_token(linked_toks, "(", item_counter, LEFT_PARENTHESIS, NULL);
                 token_counter++;
                 break;
 
             case CLOSE_BRACKET:
-                assign_token(linked_toks, ")", item_counter, RIGHT_PARENTHESIS);
+                assign_token(linked_toks, ")", item_counter, RIGHT_PARENTHESIS, NULL);
                 token_counter++;
                 break;
 
             case OPEN_CURLY_BRACKET:
-                assign_token(linked_toks, "{", item_counter, LEFT_BRACE);
+                assign_token(linked_toks, "{", item_counter, LEFT_BRACE, NULL);
                 token_counter++;
                 break;
 
             case CLOSE_CURLY_BRACKET:
-                assign_token(linked_toks, "}", item_counter, RIGHT_BRACE);
+                assign_token(linked_toks, "}", item_counter, RIGHT_BRACE, NULL);
                 token_counter++;
                 break;
 
@@ -209,13 +219,13 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters, SymbolTab
                     c = (*input_characters)[++i];
                 } while (is_digit(c));
                 item_container[item_counter++] = '\0';
-                assign_token(linked_toks, item_container, item_counter, INTEGER_LITERAL);
+                assign_token(linked_toks, item_container, item_counter, INTEGER_LITERAL, NULL);
                 token_counter++;
                 i--;
                 break;
 
             case SEMICOLON:
-                assign_token(linked_toks, ";", item_counter, SEMICOLON_ITEM);
+                assign_token(linked_toks, ";", item_counter, SEMICOLON_ITEM, NULL);
                 token_counter++;
                 break;
 
@@ -230,9 +240,9 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters, SymbolTab
 
 
 void syntax_analysis(Token **token) {
+    // TODO: pick up here when symbol table works.
     while ((*token)->next != NULL) {
         *token = (*token)->next;
-        printf("Here to do next thing...\n");
     }
 }
 
