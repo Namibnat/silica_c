@@ -55,16 +55,28 @@ void read_file(char *input_file_name, char **input_characters) {
 }
 
 
-void start_entry_symbol_table(char *item, SymbolTable **symbol_table){
-    // TODO: pick-up here to add identifiers to the symbol table.
-    // Instead of a linked list, I should use an array or hash-table for this
-    printf("IDENTIFIER %s\n", item);
+void start_entry_symbol_table(char *item, Symbol **symbol_table, int symbol_table_index){
+    if (symbol_table_index > 0) {
+        *symbol_table = (Symbol *)realloc(*symbol_table, sizeof(Symbol) * (symbol_table_index + 1));
+        if (symbol_table == NULL) {
+            perror("Failed to allocate memory for symbol table");
+            exit(EXIT_FAILURE);
+        }
+    }
+    char *symbol_name = (char *)malloc(sizeof(item));
+    if (symbol_name == NULL) {
+        perror("Failed to create memory for symbol name");
+        exit(EXIT_FAILURE);
+    }
+    (*symbol_table)[symbol_table_index].symbol_name = symbol_name;
 
+    strcpy((*symbol_table)[symbol_table_index].symbol_name, item);
 }
 
 
-void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type, SymbolTable **symbol_table) {
+void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type, Symbol **symbol_table) {
     Token *new_token = (Token *)malloc(sizeof(Token));
+    int symbol_table_index = 0;
 
     if (!new_token) {
         perror("Failed to allocate memory for tokens");
@@ -80,7 +92,8 @@ void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size
     strcpy(token_text, item);
     new_token->token_type = item_type;
     if (item_type == IDENTIFIER){
-        start_entry_symbol_table(item, symbol_table);
+        start_entry_symbol_table(item, symbol_table, symbol_table_index);
+        symbol_table_index++;
     }
     new_token->token_text = token_text;
     new_token->next = NULL;
@@ -169,7 +182,7 @@ int identify_code_string(char *text) {
 }
 
 
-void token_parser(LinkedTokens **linked_toks, char **input_characters, SymbolTable **symbol_table) {
+void token_parser(LinkedTokens **linked_toks, char **input_characters, Symbol **symbol_table) {
     int i = 0;
     char c;
     char item_container[50];
@@ -257,7 +270,7 @@ int main(int argc, char **argv) {
     char output_file_name[MAX_FILENAME_LEN];
     char *input_characters = NULL;
 
-    SymbolTable *symbol_table = malloc(sizeof(SymbolTable));
+    Symbol *symbol_table = malloc(sizeof(Symbol));
     if (!symbol_table) {
         fprintf(stderr, "Memory allocation failed for symbol table\n");
         return EXIT_FAILURE;
