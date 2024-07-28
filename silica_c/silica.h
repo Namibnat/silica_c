@@ -127,6 +127,7 @@ void parse_arguments(int argc, char **argv, char *input_file_name, char *output_
 void read_file(char *input_file_name, char **input_characters);
 void token_parser(LinkedTokens **linked_toks, char **input_characters, Symbol **symbol_table);
 void start_entry_symbol_table(char *item, Symbol **symbol_table, int symbol_table_index);
+void syntax_analysis(Token **token, Symbol **symbol_table);
 
 #endif
 

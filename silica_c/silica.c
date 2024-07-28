@@ -252,8 +252,19 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters, Symbol **
 
 
 
-void syntax_analysis(Token **token) {
-    // TODO: pick up here when symbol table works.
+void syntax_analysis(Token **token, Symbol **symbol_table) {
+    /* Next steps:
+     * - Scope -> I think it might be good to treat scope as an array,
+     *   where the base is global, then adding onto it.
+     * - I should give consideration to main as a part of scope as being a
+     *   function that not only returns to global, but returns to process,
+     *   and so I can have process scope below global scope.  I think?
+     * - I need to keep an index of teh sybol table.  Somehow I need either
+     *   a look-ahead to see when I have `int`, `char`, etc to mean
+     *   something for the next identifier.
+     */
+    int symbol_table_index = 0;
+
     while ((*token)->next != NULL) {
         *token = (*token)->next;
     }
@@ -289,7 +300,7 @@ int main(int argc, char **argv) {
     parse_arguments(argc, argv, input_file_name, output_file_name);
     read_file(input_file_name, &input_characters);
     token_parser(&linked_toks, &input_characters, &symbol_table);
-    syntax_analysis(&linked_toks->head);
+    syntax_analysis(&linked_toks->head, &symbol_table);
 
     return 0;
 }
