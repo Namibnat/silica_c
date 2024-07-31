@@ -51,18 +51,12 @@
 #define MAX_WORD_LENGTH 100
 #define INITIAL_ARRAY_SIZE 10
 
-/*
- * Symbol Table & Symbols:
- *
- * Working on thinking about this:
- * Needs to hold functions and variables (All Identifiers).
- * Hold scope
- * Does it keep track of values?  I'm not sure.
- *
- * When adding, basically the table will be checked to see if there
- * is an entry with the same name in the same scope, if not, added, else, updated (I think).
- *
- */
+enum scope {
+    SCOPE_GLB,
+    SCOPE_STATIC,
+    SCOPE_FUNCTION,
+    SCOPE_BLOCK,
+};
 
 typedef struct Symbol {
     char *scope;
@@ -74,6 +68,7 @@ typedef struct Symbol {
 typedef struct Token {
     int token_type;
     char *token_text;
+    int type;
     struct Token *next;
 } Token;
 
@@ -83,7 +78,7 @@ typedef struct LinkedTokens {
 } LinkedTokens;
 
 
-enum item_state{
+enum item_state {
     START_SOURCE,
     IN_BRACKETS,
     IN_CURLY_BRACKETS,
@@ -91,7 +86,10 @@ enum item_state{
     IN_DIGIT,
 };
 
-enum c_types{
+/* This should probably be called 'token_types'
+ * so that types mean types
+ */
+enum c_types {
     KEYWORD,
     IDENTIFIER,
     LEFT_PARENTHESIS,
@@ -100,6 +98,10 @@ enum c_types{
     RIGHT_BRACE,
     INTEGER_LITERAL,
     SEMICOLON_ITEM,
+};
+
+enum variable_types {
+    INT,
 };
 
 /* Starting to add in details to work towards syntax analysis */

@@ -74,6 +74,14 @@ void start_entry_symbol_table(char *item, Symbol **symbol_table, int symbol_tabl
 }
 
 
+int determin_type(char *item) {
+    if (strcmp("int", item) == 0) {
+        return INT;
+    }
+    return -1;
+}
+
+
 void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size, int item_type, Symbol **symbol_table) {
     Token *new_token = (Token *)malloc(sizeof(Token));
     int symbol_table_index = 0;
@@ -91,10 +99,16 @@ void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size
 
     strcpy(token_text, item);
     new_token->token_type = item_type;
+
     if (item_type == IDENTIFIER){
         start_entry_symbol_table(item, symbol_table, symbol_table_index);
         symbol_table_index++;
     }
+
+    if (item_type == KEYWORD) {
+        new_token->type = determin_type(item);
+    }
+
     new_token->token_text = token_text;
     new_token->next = NULL;
 
@@ -250,8 +264,6 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters, Symbol **
 
 }
 
-
-
 void syntax_analysis(Token **token, Symbol **symbol_table) {
     /* Next steps:
      * - Scope -> I think it might be good to treat scope as an array,
@@ -264,10 +276,19 @@ void syntax_analysis(Token **token, Symbol **symbol_table) {
      *   something for the next identifier.
      */
     int symbol_table_index = 0;
+    short SCOPE = SCOPE_GLB;
 
+    do {
+        printf("Token before...%d\n", (*token)->token_type);
+        *token = (*token)->next;
+    } while ((*token)->next != NULL);
+
+    /*
     while ((*token)->next != NULL) {
+        printf("Token before...%d\n", (*token)->token_type);
         *token = (*token)->next;
     }
+    */
 }
 
 
