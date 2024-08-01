@@ -55,7 +55,7 @@ void read_file(char *input_file_name, char **input_characters) {
 }
 
 
-void start_entry_symbol_table(char *item, Symbol **symbol_table, int symbol_table_index){
+void start_entry_symbol_table(char *item, Symbol **symbol_table, int symbol_table_index) {
     if (symbol_table_index > 0) {
         *symbol_table = (Symbol *)realloc(*symbol_table, sizeof(Symbol) * (symbol_table_index + 1));
         if (symbol_table == NULL) {
@@ -100,22 +100,24 @@ void assign_token(LinkedTokens **linked_toks, char *item, unsigned int item_size
     strcpy(token_text, item);
     new_token->token_type = item_type;
 
-    if (item_type == IDENTIFIER){
+    if (item_type == IDENTIFIER) {
         start_entry_symbol_table(item, symbol_table, symbol_table_index);
         symbol_table_index++;
     }
 
     if (item_type == KEYWORD) {
         new_token->type = determin_type(item);
+    } else {
+        new_token->type = -1;
     }
 
     new_token->token_text = token_text;
     new_token->next = NULL;
 
-    if ((*linked_toks)->head == NULL){
+    if ((*linked_toks)->head == NULL) {
         (*linked_toks)->head = new_token;
     } else {
-        if ((*linked_toks)->tail == NULL){
+        if ((*linked_toks)->tail == NULL) {
             (*linked_toks)->head->next = new_token;
             (*linked_toks)->tail = new_token;
         } else {
@@ -137,19 +139,19 @@ void parse_arguments(int argc, char **argv, char *input_file_name, char *output_
     short have_output_file = 0;
 
 
-    for (i = 1; i < argc; i++){
+    for (i = 1; i < argc; i++) {
         arglen = strlen(argv[i]);
 
-        if (arglen == 2 && argv[i][0] == '-' && argv[i][1] == 'o'){
+        if (arglen == 2 && argv[i][0] == '-' && argv[i][1] == 'o') {
 
             outfile_position = i + 1;
-            if (outfile_position >= argc){
+            if (outfile_position >= argc) {
                 fprintf(stderr, "No output file hane has been provided after the -o flag\n");
                 exit(EXIT_FAILURE);
             }
 
             outlen = strlen(argv[outfile_position]);
-            if (outlen > MAX_WORD_LENGTH){
+            if (outlen > MAX_WORD_LENGTH) {
                 fprintf(stderr, "Output filename exceeds the maximum length");
                 exit(EXIT_FAILURE);
             }
@@ -161,14 +163,14 @@ void parse_arguments(int argc, char **argv, char *input_file_name, char *output_
             continue;
         }
 
-        if (arglen > 2 && argv[i][arglen - 1] == 'c' && argv[i][arglen - 2] == '.'){
+        if (arglen > 2 && argv[i][arglen - 1] == 'c' && argv[i][arglen - 2] == '.') {
 
             strncpy(input_file_name, argv[i], arglen);
             input_file_name[arglen] = '\0';
             have_input_file++;
         }
 
-        if (have_input_file > 0 && have_output_file > 0){
+        if (have_input_file > 0 && have_output_file > 0) {
             break;
         }
     }
@@ -274,21 +276,31 @@ void syntax_analysis(Token **token, Symbol **symbol_table) {
      * - I need to keep an index of teh sybol table.  Somehow I need either
      *   a look-ahead to see when I have `int`, `char`, etc to mean
      *   something for the next identifier.
+     *
+            typedef struct Token {
+                int token_type;
+                char *token_text;
+                int type;
+                struct Token *next;
+            } Token;
+     *
+     *
      */
     int symbol_table_index = 0;
     short SCOPE = SCOPE_GLB;
+    int type_recorder;
 
     do {
-        printf("Token before...%d\n", (*token)->token_type);
+        printf("Token token_type...%d\n", (*token)->token_type);
+        printf("Token text...%s\n", (*token)->token_text);
+
         *token = (*token)->next;
+        printf("Token token_type...%d\n", (*token)->token_type);
+        printf("Token text...%s\n", (*token)->token_text);
+        printf("Token token_type...%d\n", (*token)->token_type);
+        printf("\n\n");
     } while ((*token)->next != NULL);
 
-    /*
-    while ((*token)->next != NULL) {
-        printf("Token before...%d\n", (*token)->token_type);
-        *token = (*token)->next;
-    }
-    */
 }
 
 
