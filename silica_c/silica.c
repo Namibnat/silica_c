@@ -267,40 +267,43 @@ void token_parser(LinkedTokens **linked_toks, char **input_characters, Symbol **
 }
 
 void syntax_analysis(Token **token, Symbol **symbol_table) {
-    /* Next steps:
-     * - Scope -> I think it might be good to treat scope as an array,
-     *   where the base is global, then adding onto it.
-     * - I should give consideration to main as a part of scope as being a
-     *   function that not only returns to global, but returns to process,
-     *   and so I can have process scope below global scope.  I think?
-     * - I need to keep an index of teh sybol table.  Somehow I need either
-     *   a look-ahead to see when I have `int`, `char`, etc to mean
-     *   something for the next identifier.
+    /* TODO: WORKING HERE...
      *
-            typedef struct Token {
-                int token_type;
-                char *token_text;
+            typedef struct Symbol {
+                char *scope;
+                char *symbol_name;
                 int type;
-                struct Token *next;
-            } Token;
-     *
+                int value; // ?
+            } Symbol;
      *
      */
     int symbol_table_index = 0;
     short SCOPE = SCOPE_GLB;
     int type_recorder;
+    while (*token != NULL) {
 
-    do {
+        printf("Token type...%d\n", (*token)->type);
         printf("Token token_type...%d\n", (*token)->token_type);
         printf("Token text...%s\n", (*token)->token_text);
+
+        if ((*token)->token_type == KEYWORD) {
+            if ((*token)->type >= 0) {
+                type_recorder = (*token)->type;
+            }
+            if (strcmp((*token)->token_text, "return") == 0) {
+                printf("Set flag that next item is return type\n");
+            }
+        }
+        if ((*token)->token_type == IDENTIFIER) {
+            printf("Symbol: %s is of type %d\n", (*token)->token_text, type_recorder);
+            (*symbol_table)[symbol_table_index].scope = SCOPE;
+            type_recorder = -1;
+        }
+        printf("\n\n");
 
         *token = (*token)->next;
-        printf("Token token_type...%d\n", (*token)->token_type);
-        printf("Token text...%s\n", (*token)->token_text);
-        printf("Token token_type...%d\n", (*token)->token_type);
-        printf("\n\n");
-    } while ((*token)->next != NULL);
 
+    }
 }
 
 

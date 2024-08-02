@@ -59,7 +59,7 @@ enum scope {
 };
 
 typedef struct Symbol {
-    char *scope;
+    int scope;
     char *symbol_name;
     int type;
     int value; // ?
