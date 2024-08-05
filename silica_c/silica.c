@@ -275,10 +275,22 @@ void syntax_analysis(Token **token, Symbol **symbol_table) {
                 int type;
                 int value; // ?
             } Symbol;
+
+            enum item_state {
+                STATE_TYPE_TYPE,
+                STATE_TYPE_IDENTIFIER,
+                STATE_IN_BRACKETS,
+                STATE_IN_CURLY_BRACKETS,
+                STATE_IN_NEW_STATEMENT,
+                STATE_IN_DIGIT,
+            };
      *
      */
+    int state_stack[1000];
+    int state_pointer = 0;
+
     int symbol_table_index = 0;
-    short SCOPE = SCOPE_GLB;
+    short scope = SCOPE_GLB;
     int type_recorder;
     while (*token != NULL) {
 
@@ -289,6 +301,7 @@ void syntax_analysis(Token **token, Symbol **symbol_table) {
         if ((*token)->token_type == KEYWORD) {
             if ((*token)->type >= 0) {
                 type_recorder = (*token)->type;
+                state_stack[state_pointer++] = STATE_TYPE_TYPE;
             }
             if (strcmp((*token)->token_text, "return") == 0) {
                 printf("Set flag that next item is return type\n");
@@ -296,9 +309,25 @@ void syntax_analysis(Token **token, Symbol **symbol_table) {
         }
         if ((*token)->token_type == IDENTIFIER) {
             printf("Symbol: %s is of type %d\n", (*token)->token_text, type_recorder);
-            (*symbol_table)[symbol_table_index].scope = SCOPE;
+            (*symbol_table)[symbol_table_index].scope = scope;
             type_recorder = -1;
+            state_stack[state_pointer++] = STATE_TYPE_TYPE;
         }
+        if ((*token)->token_type == LEFT_PARENTHESIS) {
+            state_stack[state_pointer++] = STATE_IN_BRACKETS;
+            printf("Got into brackets\n");
+        }
+        if ((*token)->token_type == RIGHT_PARENTHESIS) {
+            if (state_stack[state_pointer] == STATE_IN_BRACKETS) {
+                state_pointer--;
+            }
+        }
+        if((*token)->token_type == LEFT_BRACE) {
+            if (scope == SCOPE_GLB) {
+                scope = SCOPE_FUNCTION;
+            }
+        }
+
         printf("\n\n");
 
         *token = (*token)->next;

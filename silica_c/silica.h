@@ -79,11 +79,12 @@ typedef struct LinkedTokens {
 
 
 enum item_state {
-    START_SOURCE,
-    IN_BRACKETS,
-    IN_CURLY_BRACKETS,
-    IN_NEW_STATEMENT,
-    IN_DIGIT,
+    STATE_TYPE_TYPE,
+    STATE_TYPE_IDENTIFIER,
+    STATE_IN_BRACKETS,
+    STATE_IN_CURLY_BRACKETS,
+    STATE_IN_NEW_STATEMENT,
+    STATE_IN_DIGIT,
 };
 
 /* This should probably be called 'token_types'
