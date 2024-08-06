@@ -102,6 +102,7 @@ enum c_types {
 };
 
 enum variable_types {
+    NO_ASSIGMENTMT,
     INT,
 };
 

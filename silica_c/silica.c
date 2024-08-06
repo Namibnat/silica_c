@@ -284,6 +284,11 @@ void syntax_analysis(Token **token, Symbol **symbol_table) {
                 STATE_IN_NEW_STATEMENT,
                 STATE_IN_DIGIT,
             };
+
+            enum variable_types {
+                NO_ASSIGMENTMT,
+                INT,
+            };
      *
      */
     int state_stack[1000];
@@ -291,44 +296,48 @@ void syntax_analysis(Token **token, Symbol **symbol_table) {
 
     int symbol_table_index = 0;
     short scope = SCOPE_GLB;
-    int type_recorder;
-    while (*token != NULL) {
+    int next_item_return_type = NO_ASSIGMENTMT;
 
-        printf("Token type...%d\n", (*token)->type);
-        printf("Token token_type...%d\n", (*token)->token_type);
-        printf("Token text...%s\n", (*token)->token_text);
+
+    while (*token != NULL) {
 
         if ((*token)->token_type == KEYWORD) {
             if ((*token)->type >= 0) {
-                type_recorder = (*token)->type;
                 state_stack[state_pointer++] = STATE_TYPE_TYPE;
+                next_item_return_type = (*token)->type;
             }
             if (strcmp((*token)->token_text, "return") == 0) {
+                for (int i=0; i<state_pointer; i++) {
+                    printf("State: %d\n", state_stack[i]);
+                }
                 printf("Set flag that next item is return type\n");
             }
         }
         if ((*token)->token_type == IDENTIFIER) {
-            printf("Symbol: %s is of type %d\n", (*token)->token_text, type_recorder);
             (*symbol_table)[symbol_table_index].scope = scope;
-            type_recorder = -1;
+            if (next_item_return_type > 0) {
+                (*symbol_table)[symbol_table_index].type = next_item_return_type;
+            }
+            next_item_return_type = NO_ASSIGMENTMT;
             state_stack[state_pointer++] = STATE_TYPE_TYPE;
         }
         if ((*token)->token_type == LEFT_PARENTHESIS) {
-            state_stack[state_pointer++] = STATE_IN_BRACKETS;
-            printf("Got into brackets\n");
-        }
-        if ((*token)->token_type == RIGHT_PARENTHESIS) {
-            if (state_stack[state_pointer] == STATE_IN_BRACKETS) {
-                state_pointer--;
-            }
-        }
-        if((*token)->token_type == LEFT_BRACE) {
-            if (scope == SCOPE_GLB) {
+            if (scope == SCOPE_GLB && state_stack[state_pointer] == STATE_TYPE_TYPE) {
                 scope = SCOPE_FUNCTION;
             }
+            state_stack[state_pointer++] = STATE_IN_BRACKETS;
+        }
+        if ((*token)->token_type == RIGHT_PARENTHESIS) {
+            state_pointer--;
+        }
+        if ((*token)->token_type == LEFT_BRACE) {
+            state_stack[state_pointer++] = STATE_IN_CURLY_BRACKETS;
+        }
+        if ((*token)->token_type == RIGHT_BRACE) {
+            state_pointer--;
         }
 
-        printf("\n\n");
+        printf("-----------\n");
 
         *token = (*token)->next;
 
@@ -337,11 +346,6 @@ void syntax_analysis(Token **token, Symbol **symbol_table) {
 
 
 int main(int argc, char **argv) {
-    /*
-     * TODO:
-     *  - Start on syntax analysis of the basic input
-     */
-
     char input_file_name[MAX_FILENAME_LEN];
     char output_file_name[MAX_FILENAME_LEN];
     char *input_characters = NULL;
